@@ -1,1 +1,20 @@
-# Specify files that shouldn't be modified by Fern
+# TypeScript WebSocket fix (empty protocols array bug for Node.js v21+)
+src/core/websocket/ws.ts
+
+# Custom comprehensive README
+README.md
+
+# Environment switching fix (Gcp/Azure support)
+# Fern generates incorrect environment structure, these are manually fixed:
+# - environments.ts: Added wsUrl property for WebSocket URL resolution
+# - apolloWsSession/Client.ts: Changed .gcp to .wsUrl for WebSocket URL resolution
+src/environments.ts
+src/api/resources/apolloWsSession/client/Client.ts
+
+# Export fix for ApolloWsSessionSocket type
+src/api/resources/apolloWsSession/client/index.ts
+
+# Custom exports - add any additional type exports here
+# This file is imported by index.ts via: export * from "./exports.js"
+# SAFE: index.ts is NOT in fernignore, so new endpoints will still be added automatically
+src/exports.ts

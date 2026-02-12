@@ -1,244 +1,885 @@
-# Aui TypeScript Library
+# @aui.io/aui-client-staging-staging
 
-[![fern shield](https://img.shields.io/badge/%F0%9F%8C%BF-Built%20with%20Fern-brightgreen)](https://buildwithfern.com?utm_source=github&utm_medium=github&utm_campaign=readme&utm_source=https%3A%2F%2Fgithub.com%2Faui-io%2Faui-client-staging-typescript)
-[![npm shield](https://img.shields.io/npm/v/@aui.io/aui-client-staging)](https://www.npmjs.com/package/@aui.io/aui-client-staging)
+[![npm version](https://img.shields.io/npm/v/@aui.io/aui-client-staging-staging)](https://www.npmjs.com/package/@aui.io/aui-client-staging-staging)
+[![Built with Fern](https://img.shields.io/badge/Built%20with-Fern-brightgreen)](https://buildwithfern.com)
 
-The Aui TypeScript library provides convenient access to the Aui APIs from TypeScript.
+> **Official TypeScript/JavaScript SDK for AUI APIs (STAGING)** - Provides REST and WebSocket support for intelligent agent communication against staging environments.
 
-## Installation
+## 🚀 Installation
 
-```sh
-npm i -s @aui.io/aui-client-staging
+```bash
+npm install @aui.io/aui-client-staging-staging
 ```
 
-## Reference
-
-A full reference for this library is available [here](https://github.com/aui-io/aui-client-staging-typescript/blob/HEAD/./reference.md).
-
-## Usage
-
-Instantiate and use the client with the following:
+## ⚡ Quick Start
 
 ```typescript
-import { ApolloClient } from "@aui.io/aui-client-staging";
+import { ApolloClient, ApolloEnvironment } from '@aui.io/aui-client-staging';
 
-const client = new ApolloClient({ networkApiKey: "YOUR_NETWORK_API_KEY" });
-await client.controllerApi.createTask({
-    user_id: "user_id",
-    task_origin_type: "stores"
+// Default: Uses Gcp environment
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+// Or explicitly choose an environment:
+const gcpClient = new ApolloClient({
+    environment: ApolloEnvironment.Gcp,
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+const azureClient = new ApolloClient({
+    environment: ApolloEnvironment.Azure,
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
 });
 ```
 
-## Request And Response Types
 
-The SDK exports all request and response types as TypeScript interfaces. Simply import them with the
-following namespace:
+### REST API - Create and Manage Tasks
 
 ```typescript
-import { Apollo } from "@aui.io/aui-client-staging";
+// Create a new task
+const taskResponse = await client.controllerApi.createTask({
+    user_id: 'user123',
+    task_origin_type: 'web-widget'  // Required: identifies the source of the task
+});
 
-const request: Apollo.ListUserTasksRequest = {
-    ...
-};
+console.log('Task ID:', taskResponse.id);
+console.log('Welcome:', taskResponse.welcome_message);
+
+// Get all messages for a task
+const messages = await client.controllerApi.getTaskMessages(taskResponse.id);
+console.log('Messages:', messages);
+
+// Submit a message to an existing task
+const messageResponse = await client.controllerApi.sendMessage({
+    task_id: taskResponse.id,
+    text: 'Looking for a microwave with at least 20 liters capacity',
+    is_external_api: true
+});
+
+console.log('Agent response:', messageResponse.text);
+
+// Get all tasks for a user
+const userTasks = await client.controllerApi.listUserTasks({
+    user_id: 'user123',
+    page: 1,
+    size: 10
+});
+
+console.log('Total tasks:', userTasks.total);
 ```
 
-## Exception Handling
-
-When the API returns a non-success status code (4xx or 5xx response), a subclass of the following error
-will be thrown.
+### WebSocket - Real-time Agent Communication
 
 ```typescript
-import { ApolloError } from "@aui.io/aui-client-staging";
+// Connect to WebSocket with authentication headers
+const socket = await client.apolloWsSession.connect({
+    debug: false,
+    reconnectAttempts: 3,
+    headers: {
+        'x-network-api-key': 'API_KEY_YOUR_KEY_HERE'
+    }
+});
+
+// Listen for connection open
+socket.on('open', () => {
+    console.log('✅ Connected to agent');
+    
+    // Send a message
+    socket.sendUserMessage({
+        task_id: 'your-task-id',
+        text: 'I need product recommendations for gaming laptops'
+    });
+});
+
+// Handle streaming responses
+socket.on('message', (message) => {
+    // Streaming updates (partial responses)
+    if (message.channel?.eventName === 'thread-message-text-content-updated') {
+        console.log('Agent is typing:', message.data?.text);
+    }
+    
+    // Final message with complete response
+    if (message.id && message.text && message.sender) {
+        console.log('Complete response:', message.text);
+        
+        // Handle product recommendations (if any)
+        if (message.cards && message.cards.length > 0) {
+            message.cards.forEach(card => {
+                console.log(`${card.name} - ${card.id}`);
+            });
+        }
+        
+        // Follow-up suggestions
+        if (message.followupSuggestions) {
+            console.log('Suggestions:', message.followupSuggestions);
+        }
+    }
+    
+    // Error messages
+    if (message.statusCode) {
+        console.error('Agent error:', message.description);
+    }
+});
+
+// Handle errors
+socket.on('error', (error) => {
+    console.error('WebSocket error:', error);
+});
+
+// Handle connection close
+socket.on('close', (event) => {
+    console.log('Connection closed:', event.code);
+});
+
+// Close connection when done
+// socket.close();
+```
+
+## 📖 API Reference
+
+### Client Configuration
+
+The `ApolloClient` constructor accepts the following options:
+
+```typescript
+interface ApolloClient.Options {
+    environment?: ApolloEnvironment;      // Use predefined environment (Gcp or Azure)
+    
+    // Authentication (required)
+    networkApiKey: string;               // Your API key (x-network-api-key header)
+    
+    // Optional configurations
+    headers?: Record<string, string>;    // Additional headers
+    timeoutInSeconds?: number;           // Request timeout (default: 60)
+    maxRetries?: number;                 // Max retry attempts (default: 2)
+    fetch?: typeof fetch;                // Custom fetch implementation
+}
+```
+
+### Available Environments
+
+The SDK supports multiple environments for both REST API and WebSocket connections:
+
+```typescript
+import { ApolloEnvironment } from '@aui.io/aui-client-staging';
+
+// Gcp Environment (Default)
+ApolloEnvironment.Gcp = {
+    base: "https://api-staging.internal-aui.io/ia-controller",      // REST API
+    wsUrl: "wss://api-staging.internal-aui.io"                       // WebSocket
+}
+
+// Azure Environment
+ApolloEnvironment.Azure = {
+    base: "https://azure-staging-v2.aui.io/ia-controller", // REST API
+    wsUrl: "wss://azure-staging-v2.aui.io"                  // WebSocket
+}
+
+// Default (same as Gcp)
+ApolloEnvironment.Default = {
+    base: "https://api-staging.internal-aui.io/ia-controller",
+    wsUrl: "wss://api-staging.internal-aui.io"
+}
+```
+
+**Usage Example:**
+```typescript
+import { ApolloClient, ApolloEnvironment } from '@aui.io/aui-client-staging';
+
+// Use Azure environment
+const client = new ApolloClient({
+    environment: ApolloEnvironment.Azure,
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+// Both REST and WebSocket will use Azure endpoints
+const task = await client.controllerApi.createTask({...});
+const socket = await client.apolloWsSession.connect({
+    debug: false,
+    reconnectAttempts: 3,
+    headers: {
+        'x-network-api-key': 'API_KEY_YOUR_KEY_HERE'
+    }
+});
+```
+
+---
+
+### REST API Methods
+
+All methods are accessed via `client.controllerApi.*`
+
+#### `createTask(request)` - Create Task
+Create a new task for the agent.
+
+```typescript
+const taskResponse = await client.controllerApi.createTask({
+    user_id: string,              // Unique user identifier
+    task_origin_type: string      // Required: origin type (e.g., 'web-widget', 'mobile-app', 'api')
+});
+
+// Returns: { id: string, user_id: string, title: string, welcome_message?: string }
+```
+
+**Note:** `task_origin_type` is required in v1.2.17+. Common values: `'web-widget'`, `'mobile-app'`, `'api'`, `'internal-tool'`
+
+#### `getTaskMessages(taskId)` - Get Task Messages
+Retrieve all messages for a specific task.
+
+```typescript
+const messages = await client.controllerApi.getTaskMessages(taskId: string);
+
+// Returns: Message[] - Array of messages
+```
+
+#### `sendMessage(request)` - Send Message
+Submit a new message to an existing task (non-streaming).
+
+```typescript
+const messageResponse = await client.controllerApi.sendMessage({
+    task_id: string,          // Task identifier
+    text: string,             // Message text
+    is_external_api?: boolean, // Optional: mark as external API call
+    context?: {               // Optional: additional context
+        url?: string,
+        lead_details?: Record<string, any>,
+        welcome_message?: string
+    },
+    agent_variables?: Record<string, unknown>  // Optional: custom agent variables (NEW in v1.2.28)
+});
+
+// Returns: Message - Complete agent response with optional product cards
+```
+
+**New in v1.2.28:** The `agent_variables` parameter allows you to pass custom context to the agent:
+
+```typescript
+// Example: Send message with agent variables
+const response = await client.controllerApi.sendMessage({
+    task_id: 'your-task-id',
+    text: 'What products do you recommend?',
+    is_external_api: true,
+    agent_variables: {
+        context: 'User is interested in electric vehicles',
+        user_preference: 'eco-friendly',
+        budget: 'mid-range'
+    }
+});
+```
+
+#### `listUserTasks(request)` - List User Tasks
+Retrieve all tasks for a specific user with pagination.
+
+```typescript
+const tasksResponse = await client.controllerApi.listUserTasks({
+    user_id: string,    // User identifier
+    page?: number,      // Page number (optional, default: 1)
+    size?: number       // Page size (optional, default: 10)
+});
+
+// Returns: { tasks: Task[], total: number, page: number, size: number }
+```
+
+#### `getProductMetadata(link)` - Get Product Metadata
+Retrieve metadata for a product from a given URL/link.
+
+```typescript
+const metadata = await client.controllerApi.getProductMetadata({
+    link: string    // Product URL or link
+});
+
+// Returns: Record<string, any> - Product metadata object
+```
+
+#### `getAgentContext(request)` - Get Agent Context (NEW in v1.2.28)
+Retrieve the agent's context configuration including parameters, entities, and static context.
+
+```typescript
+const agentContext = await client.controllerApi.getAgentContext({
+    task_id: 'your-task-id',
+    query: 'test context'
+});
+
+// Returns: CreateTopicRequestBody - Agent context with:
+// - title: string
+// - params: TaskParameter[]
+// - entities: TaskTopicEntity[]
+// - static_context: string
+```
+
+**Example:**
+
+```typescript
+// Get agent context to understand available parameters
+const context = await client.controllerApi.getAgentContext({
+    task_id: 'your-task-id',
+    query: 'test context'
+});
+
+console.log('Agent Title:', context.title);
+console.log('Available Parameters:', context.params?.length);
+console.log('Entities:', context.entities?.length);
+console.log('Static Context:', context.static_context);
+```
+
+#### `getDirectFollowupSuggestions(taskId)` - Get Direct Followup Suggestions (NEW in v1.2.28)
+Retrieve AI-generated followup suggestions for a specific task.
+
+```typescript
+const suggestions: string[] = await client.controllerApi.getDirectFollowupSuggestions('your-task-id');
+
+// Returns: string[] - Array of suggested followup questions
+```
+
+**Example:**
+
+```typescript
+// Get followup suggestions for a task
+const suggestions: string[] = await client.controllerApi.getDirectFollowupSuggestions('your-task-id');
+
+console.log('Suggested followups:');
+suggestions.forEach((suggestion, index) => {
+    console.log(`${index + 1}. ${suggestion}`);
+});
+```
+
+---
+
+### WebSocket API
+
+All WebSocket methods are accessed via `client.apolloWsSession.*`
+
+#### `connect(args?)` - Establish Connection
+Connect to the WebSocket for real-time communication.
+
+```typescript
+const socket = await client.apolloWsSession.connect({
+    headers?: Record<string, string>,  // Additional headers
+    debug?: boolean,                   // Enable debug mode (default: false)
+    reconnectAttempts?: number         // Max reconnect attempts (default: 30)
+});
+```
+
+#### Socket Events
+
+Listen to events using `socket.on(event, callback)`:
+
+```typescript
+// Connection opened
+socket.on('open', () => void);
+
+// Message received from agent
+socket.on('message', (message: Response) => void);
+
+// Error occurred
+socket.on('error', (error: Error) => void);
+
+// Connection closed
+socket.on('close', (event: CloseEvent) => void);
+```
+
+**Message Types:**
+- `streaming_update` - Partial response while agent is thinking
+- `final_message` - Complete response with optional product cards
+- `error` - Error message from the agent
+
+**New in v0.6.0:**
+- **Message fields:** `welcome_message`, `executed_workflows` - Track workflow execution and welcome messages
+- **Card fields:** `category`, `query`, `sub_entities`, `self_review` - Enhanced product card information with self-review scoring
+- **Product Metadata API:** New endpoint to retrieve metadata from product URLs
+
+#### Socket Methods
+
+```typescript
+// Send a message to the agent
+socket.sendUserMessage({
+    task_id: string,  // Task identifier
+    text: string      // Message text
+});
+
+// Close the connection
+socket.close();
+
+// Wait for connection to open (returns Promise)
+await socket.waitForOpen();
+
+// Check connection state
+const state = socket.readyState;
+// 0 = CONNECTING, 1 = OPEN, 2 = CLOSING, 3 = CLOSED
+```
+
+## 🎯 Common Use Cases
+
+### Complete Example: E-commerce Product Search
+
+```typescript
+import { ApolloClient } from '@aui.io/aui-client-staging';
+
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+async function searchProducts(userId: string, query: string) {
+    // Step 1: Create a task
+    const taskResponse = await client.controllerApi.createTask({
+        user_id: userId,
+        task_origin_type: 'web-widget'
+    });
+    
+    const taskId = taskResponse.id;
+    console.log('Created task:', taskId);
+    
+    // Step 2: Connect to WebSocket with authentication
+    const socket = await client.apolloWsSession.connect({
+        debug: false,
+        reconnectAttempts: 3,
+        headers: {
+            'x-network-api-key': 'API_KEY_YOUR_KEY_HERE'
+        }
+    });
+    
+    // Step 3: Set up event handlers
+    socket.on('open', () => {
+        console.log('Connected! Sending query...');
+        socket.sendUserMessage({
+            task_id: taskId,
+            text: query
+        });
+    });
+    
+    socket.on('message', (message) => {
+        if (message.channel?.eventName === 'thread-message-text-content-updated') {
+            // Show real-time updates
+            console.log('Agent:', message.data?.text);
+        }
+        
+        if (message.id && message.text && message.sender) {
+            console.log('\n✅ Final Response:', message.text);
+            
+            // Display product recommendations
+            if (message.cards && message.cards.length > 0) {
+                console.log('\n🛍️ Product Recommendations:');
+                message.cards.forEach((card, index) => {
+                    console.log(`${index + 1}. ${card.name}`);
+                    console.log(`   Product ID: ${card.id}`);
+                    if (card.parameters && card.parameters.length > 0) {
+                        console.log(`   Attributes: ${card.parameters.length}`);
+                    }
+                });
+            }
+            
+            // Close connection after receiving final response
+            socket.close();
+        }
+    });
+    
+    socket.on('error', (error) => {
+        console.error('Error:', error.message);
+    });
+}
+
+// Usage
+searchProducts('user123', 'I need a gaming laptop under $1500');
+```
+
+### REST API Only: Check Task Status
+
+```typescript
+import { ApolloClient } from '@aui.io/aui-client-staging';
+
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+async function getTaskHistory(userId: string) {
+    // Get all tasks for a user
+    const tasksResponse = await client.controllerApi.listUserTasks({
+        user_id: userId,
+        page: 1,
+        size: 20
+    });
+    
+    console.log(`Found ${tasksResponse.total} tasks`);
+    
+    // Get messages for the most recent task
+    if (tasksResponse.tasks && tasksResponse.tasks.length > 0) {
+        const latestTask = tasksResponse.tasks[0];
+        const messages = await client.controllerApi.getTaskMessages(latestTask.id);
+        
+        console.log(`Task ${latestTask.id} has ${messages.length} messages`);
+        messages.forEach(msg => {
+            console.log(`[${msg.sender.type}]: ${msg.text}`);
+        });
+    }
+}
+
+getTaskHistory('user123');
+```
+
+### Get Product Metadata
+
+```typescript
+import { ApolloClient } from '@aui.io/aui-client-staging';
+
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+async function fetchProductMetadata(productLink: string) {
+    try {
+        // Fetch metadata for a product
+        const metadata = await client.controllerApi.getProductMetadata({
+            link: productLink
+        });
+        
+        console.log('Product Metadata:', metadata);
+        
+        // Metadata might include: name, price, description, images, etc.
+        if (metadata) {
+            console.log('Available fields:', Object.keys(metadata));
+        }
+        
+        return metadata;
+    } catch (error) {
+        console.error('Error fetching product metadata:', error);
+        throw error;
+    }
+}
+
+// Example usage
+fetchProductMetadata('https://www.example.com/product/12345');
+```
+
+### Send Message with Agent Variables (NEW in v1.2.28)
+
+```typescript
+import { ApolloClient } from '@aui.io/aui-client-staging';
+
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+async function sendContextualMessage(taskId: string, message: string, userContext: Record<string, unknown>) {
+    try {
+        // Send a message with custom agent variables for contextual responses
+        const response = await client.controllerApi.sendMessage({
+            task_id: taskId,
+            text: message,
+            is_external_api: true,
+            agent_variables: userContext
+        });
+        
+        console.log('Agent Response:', response.text);
+        
+        // The agent will use the provided context to tailor its response
+        if (response.cards && response.cards.length > 0) {
+            console.log('Recommended products:', response.cards.length);
+        }
+        
+        return response;
+    } catch (error) {
+        console.error('Error sending message:', error);
+        throw error;
+    }
+}
+
+// Example usage - provide context about user preferences
+sendContextualMessage('task-123', 'What do you recommend?', {
+    context: 'User is browsing electric vehicles',
+    user_preference: 'eco-friendly',
+    budget_range: '$30,000 - $50,000',
+    location: 'California'
+});
+```
+
+### Get Agent Context (NEW in v1.2.28)
+
+```typescript
+import { ApolloClient } from '@aui.io/aui-client-staging';
+
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+async function exploreAgentCapabilities() {
+    try {
+        // Get the agent's context configuration
+        const context = await client.controllerApi.getAgentContext({
+            task_id: 'your-task-id',
+            query: 'test context'
+        });
+        
+        console.log('Agent Configuration:');
+        console.log('  Title:', context.title);
+        console.log('  Static Context:', context.static_context);
+        
+        // Explore available parameters
+        if (context.params && context.params.length > 0) {
+            console.log('\nAvailable Parameters:');
+            context.params.forEach(param => {
+                console.log(`  - ${param.title}: ${param.param}`);
+            });
+        }
+        
+        // Explore entities
+        if (context.entities && context.entities.length > 0) {
+            console.log('\nConfigured Entities:', context.entities.length);
+        }
+        
+        return context;
+    } catch (error) {
+        console.error('Error getting agent context:', error);
+        throw error;
+    }
+}
+
+exploreAgentCapabilities();
+```
+
+### Get Direct Followup Suggestions (NEW in v1.2.28)
+
+```typescript
+import { ApolloClient } from '@aui.io/aui-client-staging';
+
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
+
+async function getSuggestedQuestions(taskId: string) {
+    try {
+        // Get AI-generated followup suggestions based on conversation context
+        const suggestions = await client.controllerApi.getDirectFollowupSuggestions(taskId);
+        
+        console.log('Suggested followup questions:');
+        suggestions.forEach((suggestion, index) => {
+            console.log(`  ${index + 1}. ${suggestion}`);
+        });
+        
+        // Use these suggestions to guide the user's next interaction
+        return suggestions;
+    } catch (error) {
+        console.error('Error getting suggestions:', error);
+        throw error;
+    }
+}
+
+// Example usage
+getSuggestedQuestions('task-123');
+// Output:
+// Suggested followup questions:
+//   1. "What colors are available?"
+//   2. "Do you offer financing options?"
+//   3. "Can I schedule a test drive?"
+```
+
+## 🔧 Advanced Configuration
+
+### Custom Timeout and Retries
+
+```typescript
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE',
+    timeoutInSeconds: 120,  // 2 minute timeout
+    maxRetries: 5           // Retry up to 5 times
+});
+
+// Per-request overrides
+const taskResponse = await client.controllerApi.createTask(
+    { 
+        user_id: 'user123',
+        task_origin_type: 'web-widget'
+    },
+    {
+        timeoutInSeconds: 30,  // Override for this request only
+        maxRetries: 2
+    }
+);
+```
+
+### WebSocket with Reconnection
+
+```typescript
+const socket = await client.apolloWsSession.connect({
+    debug: true,                // Enable debug logging
+    reconnectAttempts: 50,      // Try to reconnect up to 50 times
+    headers: {
+        'x-network-api-key': 'API_KEY_YOUR_KEY_HERE'
+    }
+});
+
+// The WebSocket will automatically attempt to reconnect on failure
+socket.on('close', (event) => {
+    console.log(`Connection closed with code ${event.code}`);
+    // Socket will auto-reconnect unless you called socket.close()
+});
+```
+
+### Error Handling Best Practices
+
+```typescript
+import { ApolloClient, UnprocessableEntityError, ApolloError } from '@aui.io/aui-client-staging';
+
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'
+});
 
 try {
-    await client.controllerApi.createTask(...);
-} catch (err) {
-    if (err instanceof ApolloError) {
-        console.log(err.statusCode);
-        console.log(err.message);
-        console.log(err.body);
-        console.log(err.rawResponse);
+    const taskResponse = await client.controllerApi.createTask({
+        user_id: 'user123',
+        task_origin_type: 'web-widget'
+    });
+} catch (error) {
+    if (error instanceof UnprocessableEntityError) {
+        // Validation error (422)
+        console.error('Validation failed:', error.body);
+    } else if (error instanceof ApolloError) {
+        // Other API errors
+        console.error('API error:', error.statusCode, error.body);
+    } else {
+        // Network or other errors
+        console.error('Unexpected error:', error);
     }
 }
 ```
 
-## Advanced
+## 📦 TypeScript Support
 
-### Additional Headers
-
-If you would like to send additional headers as part of the request, use the `headers` request option.
+This SDK is written in TypeScript and includes full type definitions. All types are automatically exported:
 
 ```typescript
-const response = await client.controllerApi.createTask(..., {
+import { 
+    ApolloClient,
+    // Request types
+    CreateExternalTaskRequest,
+    SubmitExternalMessageRequest,
+    UserMessagePayload,
+    // Response types
+    CreateExternalTaskResponse,
+    ExternalTaskMessage,
+    ListExternalTasksResponse,
+    StreamingUpdatePayload,
+    FinalMessagePayload,
+    ErrorMessagePayload,
+    // Error types
+    ApolloError,
+    UnprocessableEntityError
+} from '@aui.io/aui-client-staging';
+
+// All methods have full IntelliSense support
+const client = new ApolloClient({
+    networkApiKey: 'YOUR_KEY'
+});
+
+// TypeScript will autocomplete and type-check
+const taskResponse = await client.controllerApi.createTask({ user_id: 'user123' });
+taskResponse.id; // ✅ Fully typed
+```
+
+## 🐛 Troubleshooting
+
+### WebSocket Connection Issues
+
+**Problem:** Connection fails with `1008 Policy Violation` or authentication errors
+
+**Solution 1:** Make sure you're using SDK version **1.1.7 or higher**, which includes a fix for Node.js v21+ WebSocket compatibility:
+
+```bash
+npm install @aui.io/aui-client-staging@latest
+```
+
+**Solution 2:** If using an older SDK version, downgrade to Node.js v20:
+
+```bash
+# Check your Node version
+node --version
+
+# Switch to Node 20 if using nvm
+nvm use 20
+
+# Or install Node 20
+nvm install 20
+```
+
+**Solution 3:** Verify your API key is being passed correctly:
+
+```typescript
+const client = new ApolloClient({
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'  // Make sure this is set
+});
+
+// Or pass it per-request
+const socket = await client.apolloWsSession.connect({
     headers: {
-        'X-Custom-Header': 'custom value'
+        'x-network-api-key': 'API_KEY_YOUR_KEY_HERE'
     }
 });
 ```
 
-### Additional Query String Parameters
+### Authentication Errors (401/403)
 
-If you would like to send additional query string parameters as part of the request, use the `queryParams` request option.
+**Problem:** Getting `401 Unauthorized` or `403 Forbidden` errors
 
-```typescript
-const response = await client.controllerApi.createTask(..., {
-    queryParams: {
-        'customQueryParamKey': 'custom query param value'
-    }
-});
-```
-
-### Retries
-
-The SDK is instrumented with automatic retries with exponential backoff. A request will be retried as long
-as the request is deemed retryable and the number of retry attempts has not grown larger than the configured
-retry limit (default: 2).
-
-A request is deemed retryable when any of the following HTTP status codes is returned:
-
-- [408](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/408) (Timeout)
-- [429](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/429) (Too Many Requests)
-- [5XX](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/500) (Internal Server Errors)
-
-Use the `maxRetries` request option to configure this behavior.
+**Solution:** Verify your API key:
 
 ```typescript
-const response = await client.controllerApi.createTask(..., {
-    maxRetries: 0 // override maxRetries at the request level
-});
-```
-
-### Timeouts
-
-The SDK defaults to a 60 second timeout. Use the `timeoutInSeconds` option to configure this behavior.
-
-```typescript
-const response = await client.controllerApi.createTask(..., {
-    timeoutInSeconds: 30 // override timeout to 30s
-});
-```
-
-### Aborting Requests
-
-The SDK allows users to abort requests at any point by passing in an abort signal.
-
-```typescript
-const controller = new AbortController();
-const response = await client.controllerApi.createTask(..., {
-    abortSignal: controller.signal
-});
-controller.abort(); // aborts the request
-```
-
-### Access Raw Response Data
-
-The SDK provides access to raw response data, including headers, through the `.withRawResponse()` method.
-The `.withRawResponse()` method returns a promise that results to an object with a `data` and a `rawResponse` property.
-
-```typescript
-const { data, rawResponse } = await client.controllerApi.createTask(...).withRawResponse();
-
-console.log(data);
-console.log(rawResponse.headers['X-My-Header']);
-```
-
-### Logging
-
-The SDK supports logging. You can configure the logger by passing in a `logging` object to the client options.
-
-```typescript
-import { ApolloClient, logging } from "@aui.io/aui-client-staging";
-
 const client = new ApolloClient({
-    ...
-    logging: {
-        level: logging.LogLevel.Debug, // defaults to logging.LogLevel.Info
-        logger: new logging.ConsoleLogger(), // defaults to ConsoleLogger
-        silent: false, // defaults to true, set to false to enable logging
-    }
+    networkApiKey: 'API_KEY_YOUR_KEY_HERE'  // Double-check this value
 });
-```
-The `logging` object can have the following properties:
-- `level`: The log level to use. Defaults to `logging.LogLevel.Info`.
-- `logger`: The logger to use. Defaults to a `logging.ConsoleLogger`.
-- `silent`: Whether to silence the logger. Defaults to `true`.
 
-The `level` property can be one of the following values:
-- `logging.LogLevel.Debug`
-- `logging.LogLevel.Info`
-- `logging.LogLevel.Warn`
-- `logging.LogLevel.Error`
-
-To provide a custom logger, you can pass in an object that implements the `logging.ILogger` interface.
-
-<details>
-<summary>Custom logger examples</summary>
-
-Here's an example using the popular `winston` logging library.
-```ts
-import winston from 'winston';
-
-const winstonLogger = winston.createLogger({...});
-
-const logger: logging.ILogger = {
-    debug: (msg, ...args) => winstonLogger.debug(msg, ...args),
-    info: (msg, ...args) => winstonLogger.info(msg, ...args),
-    warn: (msg, ...args) => winstonLogger.warn(msg, ...args),
-    error: (msg, ...args) => winstonLogger.error(msg, ...args),
-};
+// The key should start with "API_KEY_"
+// Example: API_KEY_01K------
 ```
 
-Here's an example using the popular `pino` logging library.
+### CORS Errors (Browser Only)
 
-```ts
-import pino from 'pino';
+**Problem:** Getting CORS errors when using the SDK in a browser
 
-const pinoLogger = pino({...});
+**Solution:** The API must be configured to allow requests from your domain. Contact your API administrator to whitelist your origin.
 
-const logger: logging.ILogger = {
-  debug: (msg, ...args) => pinoLogger.debug(args, msg),
-  info: (msg, ...args) => pinoLogger.info(args, msg),
-  warn: (msg, ...args) => pinoLogger.warn(args, msg),
-  error: (msg, ...args) => pinoLogger.error(args, msg),
-};
-```
-</details>
+### TypeScript Errors
 
+**Problem:** TypeScript compilation errors or missing type definitions
 
-### Runtime Compatibility
+**Solution:** Ensure you're using TypeScript 4.0 or higher:
 
-
-The SDK works in the following runtimes:
-
-
-
-- Node.js 18+
-- Vercel
-- Cloudflare Workers
-- Deno v1.25+
-- Bun 1.0+
-- React Native
-
-### Customizing Fetch Client
-
-The SDK provides a way for you to customize the underlying HTTP client / Fetch function. If you're running in an
-unsupported environment, this provides a way for you to break glass and ensure the SDK works.
-
-```typescript
-import { ApolloClient } from "@aui.io/aui-client-staging";
-
-const client = new ApolloClient({
-    ...
-    fetcher: // provide your implementation here
-});
+```bash
+npm install --save-dev typescript@latest
 ```
 
-## Contributing
+## 📚 Examples
 
-While we value open-source contributions to this SDK, this library is generated programmatically.
-Additions made directly to this library would have to be moved over to our generation code,
-otherwise they would be overwritten upon the next generated release. Feel free to open a PR as
-a proof of concept, but know that we will not be able to merge it as-is. We suggest opening
-an issue first to discuss with us!
+The `examples/` directory contains ready-to-run code examples:
 
-On the other hand, contributions to the README are always very welcome!
+- **Product Metadata API** - [`examples/test-product-metadata.js`](./examples/test-product-metadata.js)
+  - Fetch product information from URLs
+  - Handle errors and edge cases
+  - Extract and use metadata
+
+Run examples:
+```bash
+export NETWORK_API_KEY="API_KEY_YOUR_KEY_HERE"
+node examples/test-product-metadata.js
+```
+
+See the [examples README](./examples/README.md) for more details.
+
+## 🔗 Resources
+
+- **GitHub Repository:** [aui-io/aui-client-staging-typescript](https://github.com/aui-io/aui-client-staging-typescript)
+- **npm Package:** [@aui.io/aui-client-staging](https://www.npmjs.com/package/@aui.io/aui-client-staging)
+- **API Documentation:** [Full API Reference](https://docs.aui.io)
+- **Report Issues:** [GitHub Issues](https://github.com/aui-io/aui-client-staging-typescript/issues)
+
+## 📄 License
+
+This SDK is proprietary software. Unauthorized copying or distribution is prohibited.
+
+## 🤝 Support
+
+For support, please contact your AUI representative or open an issue on GitHub.
+
+---
+
+**Built with ❤️ by the AUI team**
+

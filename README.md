@@ -1,6 +1,6 @@
-# @aui.io/aui-client-staging-staging
+# @aui.io/aui-client-staging
 
-[![npm version](https://img.shields.io/npm/v/@aui.io/aui-client-staging-staging)](https://www.npmjs.com/package/@aui.io/aui-client-staging-staging)
+[![npm version](https://img.shields.io/npm/v/@aui.io/aui-client-staging)](https://www.npmjs.com/package/@aui.io/aui-client-staging)
 [![Built with Fern](https://img.shields.io/badge/Built%20with-Fern-brightgreen)](https://buildwithfern.com)
 
 > **Official TypeScript/JavaScript SDK for AUI APIs (STAGING)** - Provides REST and WebSocket support for intelligent agent communication against staging environments.
@@ -8,7 +8,7 @@
 ## 🚀 Installation
 
 ```bash
-npm install @aui.io/aui-client-staging-staging
+npm install @aui.io/aui-client-staging
 ```
 
 ## ⚡ Quick Start

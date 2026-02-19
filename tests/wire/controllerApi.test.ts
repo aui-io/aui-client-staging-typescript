@@ -9,7 +9,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {
@@ -59,7 +59,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {};
@@ -82,7 +82,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
         const rawRequestBody = { user_id: "user_id", task_origin_type: "stores" };
         const rawResponseBody = {
@@ -118,7 +118,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
         const rawRequestBody = { user_id: "user_id", task_origin_type: "stores" };
         const rawResponseBody = {};
@@ -143,7 +143,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = [
@@ -205,7 +205,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {};
@@ -226,7 +226,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
         const rawRequestBody = { task_id: "task_id", text: "text" };
         const rawResponseBody = {
@@ -325,7 +325,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
         const rawRequestBody = { task_id: "task_id", text: "text" };
         const rawResponseBody = {};
@@ -350,7 +350,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = { key: "value" };
@@ -374,7 +374,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {};
@@ -397,7 +397,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
         const rawRequestBody = { key: "value" };
         const rawResponseBody = {
@@ -492,7 +492,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
         const rawRequestBody = { string: { key: "value" } };
         const rawResponseBody = {};
@@ -518,7 +518,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = { suggestions: ["suggestions"], metadata_id: "metadata_id" };
@@ -541,7 +541,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {};
@@ -562,7 +562,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {
@@ -604,7 +604,7 @@ describe("ControllerApi", () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
             networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl },
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {};

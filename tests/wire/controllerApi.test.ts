@@ -158,6 +158,7 @@ describe("ControllerApi", () => {
                 followup_suggestions: ["followup_suggestions"],
                 executed_workflows: ["executed_workflows"],
                 url: "url",
+                trace_info: { key: "value" },
             },
         ];
         server
@@ -197,6 +198,9 @@ describe("ControllerApi", () => {
                 followup_suggestions: ["followup_suggestions"],
                 executed_workflows: ["executed_workflows"],
                 url: "url",
+                trace_info: {
+                    key: "value",
+                },
             },
         ]);
     });
@@ -245,12 +249,14 @@ describe("ControllerApi", () => {
                     sub_entities: [{ name: "name", items: [{ parameters: [{ param: "param", title: "title" }] }] }],
                     self_review: { score: { label: "HIGH", method: "INVENTORY_CLASSIFICATION" }, type: "WORKFLOW" },
                     is_recommended: true,
+                    rendered_jsx: "rendered_jsx",
                 },
             ],
             welcome_message: "welcome_message",
             followup_suggestions: ["followup_suggestions"],
             executed_workflows: ["executed_workflows"],
             url: "url",
+            trace_info: { key: "value" },
         };
         server
             .mockEndpoint()
@@ -262,6 +268,7 @@ describe("ControllerApi", () => {
             .build();
 
         const response = await client.controllerApi.sendMessage({
+            include_trace_info: true,
             is_external_api: true,
             task_id: "task_id",
             text: "text",
@@ -312,12 +319,16 @@ describe("ControllerApi", () => {
                         type: "WORKFLOW",
                     },
                     is_recommended: true,
+                    rendered_jsx: "rendered_jsx",
                 },
             ],
             welcome_message: "welcome_message",
             followup_suggestions: ["followup_suggestions"],
             executed_workflows: ["executed_workflows"],
             url: "url",
+            trace_info: {
+                key: "value",
+            },
         });
     });
 
@@ -618,6 +629,49 @@ describe("ControllerApi", () => {
 
         await expect(async () => {
             return await client.controllerApi.getWorkflowsMetadata();
+        }).rejects.toThrow(Apollo.UnprocessableEntityError);
+    });
+
+    test("get_trace_info (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            networkApiKey: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/api/v1/external/tasks/task_id/messages/message_id/trace-info")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.controllerApi.getTraceInfo("task_id", "message_id");
+        expect(response).toEqual({
+            key: "value",
+        });
+    });
+
+    test("get_trace_info (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            networkApiKey: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+
+        const rawResponseBody = {};
+        server
+            .mockEndpoint()
+            .get("/api/v1/external/tasks/task_id/messages/message_id/trace-info")
+            .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.controllerApi.getTraceInfo("task_id", "message_id");
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
 });

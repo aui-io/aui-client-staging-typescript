@@ -5,12 +5,14 @@ import type * as Apollo from "../../../../index.js";
 /**
  * @example
  *     {
+ *         include_trace_info: true,
  *         is_external_api: true,
  *         task_id: "task_id",
  *         text: "text"
  *     }
  */
 export interface SubmitMessageRequest {
+    include_trace_info?: boolean;
     is_external_api?: boolean;
     task_id: string;
     text: string;

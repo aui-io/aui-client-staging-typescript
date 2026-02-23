@@ -238,18 +238,19 @@ Submit a new message to an existing task (non-streaming).
 
 ```typescript
 const messageResponse = await client.controllerApi.sendMessage({
-    task_id: string,          // Task identifier
-    text: string,             // Message text
-    is_external_api?: boolean, // Optional: mark as external API call
-    context?: {               // Optional: additional context
+    task_id: string,              // Task identifier
+    text: string,                 // Message text
+    is_external_api?: boolean,    // Optional: mark as external API call
+    include_trace_info?: boolean, // Optional: include trace/debug info in response (NEW)
+    context?: {                   // Optional: additional context
         url?: string,
         lead_details?: Record<string, any>,
         welcome_message?: string
     },
-    agent_variables?: Record<string, unknown>  // Optional: custom agent variables (NEW in v1.2.28)
+    agent_variables?: Record<string, unknown>  // Optional: custom agent variables
 });
 
-// Returns: Message - Complete agent response with optional product cards
+// Returns: Message - Complete agent response with optional product cards, trace_info, and rendered_jsx
 ```
 
 **New in v1.2.28:** The `agent_variables` parameter allows you to pass custom context to the agent:
@@ -342,6 +343,31 @@ console.log('Suggested followups:');
 suggestions.forEach((suggestion, index) => {
     console.log(`${index + 1}. ${suggestion}`);
 });
+```
+
+#### `getTraceInfo(taskId, messageId)` - Get Trace Info (NEW)
+Retrieve trace/debug information for a specific message. Useful for debugging agent responses and understanding the processing pipeline.
+
+```typescript
+const traceInfo = await client.controllerApi.getTraceInfo('your-task-id', 'your-message-id');
+
+// Returns: Record<string, any> - Trace information object
+```
+
+**Example:**
+
+```typescript
+// First, send a message with trace info enabled
+const message = await client.controllerApi.sendMessage({
+    task_id: 'your-task-id',
+    text: 'What products do you recommend?',
+    is_external_api: true,
+    include_trace_info: true
+});
+
+// Then retrieve the full trace info for that message
+const traceInfo = await client.controllerApi.getTraceInfo('your-task-id', message.id);
+console.log('Trace Info:', traceInfo);
 ```
 
 ---

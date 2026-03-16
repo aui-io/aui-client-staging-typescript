@@ -13,5 +13,5 @@ export interface Message {
     followup_suggestions: string[];
     executed_workflows?: string[];
     url?: string;
-    trace_info?: Record<string, unknown>;
+    trace_info?: Apollo.TraceInfo;
 }

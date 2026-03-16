@@ -211,7 +211,16 @@ describe("ControllerApi", () => {
                 followup_suggestions: ["followup_suggestions"],
                 executed_workflows: ["executed_workflows"],
                 url: "url",
-                trace_info: { key: "value" },
+                trace_info: {
+                    interaction_id: "interaction_id",
+                    session_id: "session_id",
+                    timestamp: "2024-01-15T09:30:00Z",
+                    input: { message: "message" },
+                    context: {},
+                    understanding: { guardrails: { passed: true } },
+                    decisions: [{ tool: "tool", trigger: { type: "structured" } }],
+                    response: { type: "answer", message: "message" },
+                },
             },
         ];
         server
@@ -252,7 +261,30 @@ describe("ControllerApi", () => {
                 executed_workflows: ["executed_workflows"],
                 url: "url",
                 trace_info: {
-                    key: "value",
+                    interaction_id: "interaction_id",
+                    session_id: "session_id",
+                    timestamp: "2024-01-15T09:30:00Z",
+                    input: {
+                        message: "message",
+                    },
+                    context: {},
+                    understanding: {
+                        guardrails: {
+                            passed: true,
+                        },
+                    },
+                    decisions: [
+                        {
+                            tool: "tool",
+                            trigger: {
+                                type: "structured",
+                            },
+                        },
+                    ],
+                    response: {
+                        type: "answer",
+                        message: "message",
+                    },
                 },
             },
         ]);
@@ -285,7 +317,7 @@ describe("ControllerApi", () => {
             networkApiKey: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { task_id: "task_id", text: "text" };
+        const rawRequestBody = { task_id: "task_id" };
         const rawResponseBody = {
             id: "id",
             created_at: "created_at",
@@ -309,7 +341,37 @@ describe("ControllerApi", () => {
             followup_suggestions: ["followup_suggestions"],
             executed_workflows: ["executed_workflows"],
             url: "url",
-            trace_info: { key: "value" },
+            trace_info: {
+                interaction_id: "interaction_id",
+                session_id: "session_id",
+                timestamp: "2024-01-15T09:30:00Z",
+                input: { message: "message", channel: "WEBSOCKET" },
+                context: {
+                    active_tools: [{ tool: "tool", status: "awaiting_params" }],
+                    entities: [{ entity: "entity", source: "external_context" }],
+                    params: { key: "value" },
+                    static_context: [{ key: "value" }],
+                    message_params: { key: "value" },
+                    structured_params: { key: "value" },
+                },
+                understanding: {
+                    guardrails: { passed: true },
+                    intents: ["intents"],
+                    extracted_params: { key: "value" },
+                    is_followup: true,
+                    followup_type: "confirmation_yes",
+                },
+                decisions: [{ tool: "tool", trigger: { type: "structured" } }],
+                response: {
+                    type: "answer",
+                    message: "message",
+                    suggestions: ["suggestions"],
+                    question_reason: "missing_params",
+                    asking_for: ["asking_for"],
+                    block_message: "block_message",
+                    error: "error",
+                },
+            },
         };
         server
             .mockEndpoint()
@@ -324,7 +386,6 @@ describe("ControllerApi", () => {
             include_trace_info: true,
             is_external_api: true,
             task_id: "task_id",
-            text: "text",
         });
         expect(response).toEqual({
             id: "id",
@@ -380,7 +441,69 @@ describe("ControllerApi", () => {
             executed_workflows: ["executed_workflows"],
             url: "url",
             trace_info: {
-                key: "value",
+                interaction_id: "interaction_id",
+                session_id: "session_id",
+                timestamp: "2024-01-15T09:30:00Z",
+                input: {
+                    message: "message",
+                    channel: "WEBSOCKET",
+                },
+                context: {
+                    active_tools: [
+                        {
+                            tool: "tool",
+                            status: "awaiting_params",
+                        },
+                    ],
+                    entities: [
+                        {
+                            entity: "entity",
+                            source: "external_context",
+                        },
+                    ],
+                    params: {
+                        key: "value",
+                    },
+                    static_context: [
+                        {
+                            key: "value",
+                        },
+                    ],
+                    message_params: {
+                        key: "value",
+                    },
+                    structured_params: {
+                        key: "value",
+                    },
+                },
+                understanding: {
+                    guardrails: {
+                        passed: true,
+                    },
+                    intents: ["intents"],
+                    extracted_params: {
+                        key: "value",
+                    },
+                    is_followup: true,
+                    followup_type: "confirmation_yes",
+                },
+                decisions: [
+                    {
+                        tool: "tool",
+                        trigger: {
+                            type: "structured",
+                        },
+                    },
+                ],
+                response: {
+                    type: "answer",
+                    message: "message",
+                    suggestions: ["suggestions"],
+                    question_reason: "missing_params",
+                    asking_for: ["asking_for"],
+                    block_message: "block_message",
+                    error: "error",
+                },
             },
         });
     });
@@ -391,7 +514,7 @@ describe("ControllerApi", () => {
             networkApiKey: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { task_id: "task_id", text: "text" };
+        const rawRequestBody = { task_id: "task_id" };
         const rawResponseBody = {};
         server
             .mockEndpoint()
@@ -405,7 +528,6 @@ describe("ControllerApi", () => {
         await expect(async () => {
             return await client.controllerApi.sendMessage({
                 task_id: "task_id",
-                text: "text",
             });
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
@@ -479,6 +601,7 @@ describe("ControllerApi", () => {
                     is_value_filled: true,
                     is_visible: true,
                     param_type: "boolean",
+                    code: "code",
                 },
             ],
             entities: [
@@ -530,6 +653,7 @@ describe("ControllerApi", () => {
                     is_value_filled: true,
                     is_visible: true,
                     param_type: "boolean",
+                    code: "code",
                 },
             ],
             entities: [

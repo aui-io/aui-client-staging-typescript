@@ -219,8 +219,7 @@ await client.controllerApi.getTaskMessages("task_id");
 await client.controllerApi.sendMessage({
     include_trace_info: true,
     is_external_api: true,
-    task_id: "task_id",
-    text: "text"
+    task_id: "task_id"
 });
 
 ```

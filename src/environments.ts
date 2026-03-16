@@ -8,21 +8,21 @@ export interface ApolloEnvironmentUrls {
 
 export const ApolloEnvironment = {
     Gcp: {
-        base: "https://api-staging.internal-aui.io/ia-controller",
-        wsUrl: "wss://api-staging.internal-aui.io",
+        base: "https://api-staging-v3.internal-aui.io/ia-controller",
+        wsUrl: "wss://api-staging-v3.internal-aui.io",
     },
     Azure: {
-        base: "https://azure-staging-v2.aui.io/ia-controller",
-        wsUrl: "wss://azure-staging-v2.aui.io",
+        base: "https://azure-staging-v3.aui.io/ia-controller",
+        wsUrl: "wss://azure-staging-v3.aui.io",
     },
     Aws: {
-        base: "https://aws-staging.aui.io/ia-controller",
-        wsUrl: "wss://aws-staging.aui.io",
+        base: "https://aws-staging-v3.aui.io/ia-controller",
+        wsUrl: "wss://aws-staging-v3.aui.io",
     },
     // Default points to Gcp for backwards compatibility
     Default: {
-        base: "https://api-staging.internal-aui.io/ia-controller",
-        wsUrl: "wss://api-staging.internal-aui.io",
+        base: "https://api-staging-v3.internal-aui.io/ia-controller",
+        wsUrl: "wss://api-staging-v3.internal-aui.io",
     },
 } as const;
 

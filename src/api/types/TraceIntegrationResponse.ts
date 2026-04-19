@@ -2,6 +2,7 @@
 
 import type * as Apollo from "../index.js";
 
-export interface WorkflowsMetadataResponse {
-    workflows?: Apollo.WorkflowMetadata[];
+export interface TraceIntegrationResponse {
+    name: string;
+    items?: Apollo.TraceIntegrationResponseItem[];
 }

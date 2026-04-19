@@ -5,5 +5,5 @@ export interface TraceIntegrationRequest {
     url: string;
     method: string;
     category: string;
-    body?: unknown;
+    params?: unknown;
 }

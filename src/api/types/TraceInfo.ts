@@ -3,12 +3,9 @@
 import type * as Apollo from "../index.js";
 
 /**
- * Root trace. Schema: interaction_id, input, understanding, decisions, response (required); session_id, timestamp, context (optional).
+ * Root trace. Schema: input, understanding, decisions, response (required); context (optional).
  */
 export interface TraceInfo {
-    interaction_id: string;
-    session_id?: string;
-    timestamp: string;
     input: Apollo.TraceInput;
     context?: Apollo.TraceContext;
     understanding: Apollo.TraceUnderstanding;

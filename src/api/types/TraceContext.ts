@@ -5,8 +5,7 @@ import type * as Apollo from "../index.js";
 export interface TraceContext {
     active_tools?: Apollo.TraceActiveTool[];
     entities?: Apollo.TraceEntity[];
-    params?: Record<string, unknown>;
     static_context?: Record<string, unknown>[];
     message_params?: Record<string, unknown>;
-    structured_params?: Record<string, unknown>;
+    response_params?: Record<string, unknown>;
 }

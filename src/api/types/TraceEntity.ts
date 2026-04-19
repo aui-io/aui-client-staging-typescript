@@ -4,7 +4,7 @@ import type * as Apollo from "../index.js";
 
 export interface TraceEntity {
     entity: string;
-    id?: string;
+    identifier?: string;
     reference?: string;
     source: Apollo.TraceEntitySource;
     params?: Record<string, unknown>;

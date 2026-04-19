@@ -5,6 +5,10 @@ import type * as Apollo from "../index.js";
 export interface TraceDecisionRuleTriggered {
     type?: Apollo.TraceDecisionType;
     tool: string;
-    rule: Apollo.TraceRuleBase;
+    rule: TraceDecisionRuleTriggered.Rule;
     track_id?: string;
+}
+
+export namespace TraceDecisionRuleTriggered {
+    export type Rule = Apollo.TraceRuleBase | Apollo.TraceRuleParamsMissing | Apollo.TraceRuleMissingInfo;
 }

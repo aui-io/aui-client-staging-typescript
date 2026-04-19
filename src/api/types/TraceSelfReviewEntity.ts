@@ -4,8 +4,9 @@ import type * as Apollo from "../index.js";
 
 export interface TraceSelfReviewEntity {
     entity: string;
-    id?: string;
+    identifier?: string;
     reference?: string;
     sub_entities?: Apollo.TracSelfReviewSubEntity[];
     self_review?: Apollo.TraceSelfReviewSection;
+    is_visible: boolean;
 }

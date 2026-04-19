@@ -630,23 +630,25 @@ export class ControllerApi {
     }
 
     /**
-     * @param {string} taskId
+     * @param {Apollo.DirectFollowupSuggestionsRequest} request
      * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Apollo.UnprocessableEntityError}
      *
      * @example
-     *     await client.controllerApi.getDirectFollowupSuggestions("task_id")
+     *     await client.controllerApi.getDirectFollowupSuggestions({
+     *         created_by: "created_by"
+     *     })
      */
     public getDirectFollowupSuggestions(
-        taskId: string,
+        request: Apollo.DirectFollowupSuggestionsRequest,
         requestOptions?: ControllerApi.RequestOptions,
     ): core.HttpResponsePromise<Apollo.DirectFollowupSuggestionsResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__getDirectFollowupSuggestions(taskId, requestOptions));
+        return core.HttpResponsePromise.fromPromise(this.__getDirectFollowupSuggestions(request, requestOptions));
     }
 
     private async __getDirectFollowupSuggestions(
-        taskId: string,
+        request: Apollo.DirectFollowupSuggestionsRequest,
         requestOptions?: ControllerApi.RequestOptions,
     ): Promise<core.WithRawResponse<Apollo.DirectFollowupSuggestionsResponse>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
@@ -660,11 +662,14 @@ export class ControllerApi {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                `api/v1/external/tasks/${core.url.encodePathParam(taskId)}/direct-followup-suggestions`,
+                "api/v1/external/direct-followup-suggestions",
             ),
-            method: "GET",
+            method: "POST",
             headers: _headers,
+            contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -703,88 +708,7 @@ export class ControllerApi {
                 });
             case "timeout":
                 throw new errors.ApolloTimeoutError(
-                    "Timeout exceeded when calling GET /api/v1/external/tasks/{task_id}/direct-followup-suggestions.",
-                );
-            case "unknown":
-                throw new errors.ApolloError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * Get metadata for all workflows available for the authenticated network.
-     * Returns a lean version with essential workflow information.
-     *
-     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Apollo.UnprocessableEntityError}
-     *
-     * @example
-     *     await client.controllerApi.getWorkflowsMetadata()
-     */
-    public getWorkflowsMetadata(
-        requestOptions?: ControllerApi.RequestOptions,
-    ): core.HttpResponsePromise<Apollo.WorkflowsMetadataResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__getWorkflowsMetadata(requestOptions));
-    }
-
-    private async __getWorkflowsMetadata(
-        requestOptions?: ControllerApi.RequestOptions,
-    ): Promise<core.WithRawResponse<Apollo.WorkflowsMetadataResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
-            }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                "api/v1/external/workflows/metadata",
-            ),
-            method: "GET",
-            headers: _headers,
-            queryParameters: requestOptions?.queryParams,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-            fetchFn: this._options?.fetch,
-            logging: this._options.logging,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Apollo.WorkflowsMetadataResponse, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 422:
-                    throw new Apollo.UnprocessableEntityError(
-                        _response.error.body as Apollo.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.ApolloError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.ApolloError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.ApolloTimeoutError(
-                    "Timeout exceeded when calling GET /api/v1/external/workflows/metadata.",
+                    "Timeout exceeded when calling POST /api/v1/external/direct-followup-suggestions.",
                 );
             case "unknown":
                 throw new errors.ApolloError({
@@ -964,6 +888,97 @@ export class ControllerApi {
                 throw new errors.ApolloTimeoutError(
                     "Timeout exceeded when calling POST /api/v1/external/text/conversation.",
                 );
+            case "unknown":
+                throw new errors.ApolloError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Render a widget card from integration data. Authenticates via network API key.
+     *
+     * @param {Apollo.ExternalWidgetRenderRequest} request
+     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Apollo.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.controllerApi.renderWidget({
+     *         task_id: "task_id",
+     *         integration_code: "integration_code",
+     *         card_template_code: "card_template_code",
+     *         variables: {
+     *             "key": "value"
+     *         }
+     *     })
+     */
+    public renderWidget(
+        request: Apollo.ExternalWidgetRenderRequest,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): core.HttpResponsePromise<Apollo.WidgetRenderResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__renderWidget(request, requestOptions));
+    }
+
+    private async __renderWidget(
+        request: Apollo.ExternalWidgetRenderRequest,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): Promise<core.WithRawResponse<Apollo.WidgetRenderResponse>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({
+                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
+            }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
+                "api/v1/external/widgets",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Apollo.WidgetRenderResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    throw new Apollo.UnprocessableEntityError(
+                        _response.error.body as Apollo.HttpValidationError,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.ApolloError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.ApolloError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.ApolloTimeoutError("Timeout exceeded when calling POST /api/v1/external/widgets.");
             case "unknown":
                 throw new errors.ApolloError({
                     message: _response.error.errorMessage,

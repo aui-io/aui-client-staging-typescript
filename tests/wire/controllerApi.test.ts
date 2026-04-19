@@ -212,9 +212,6 @@ describe("ControllerApi", () => {
                 executed_workflows: ["executed_workflows"],
                 url: "url",
                 trace_info: {
-                    interaction_id: "interaction_id",
-                    session_id: "session_id",
-                    timestamp: "2024-01-15T09:30:00Z",
                     input: { message: "message" },
                     context: {},
                     understanding: { guardrails: { passed: true } },
@@ -261,9 +258,6 @@ describe("ControllerApi", () => {
                 executed_workflows: ["executed_workflows"],
                 url: "url",
                 trace_info: {
-                    interaction_id: "interaction_id",
-                    session_id: "session_id",
-                    timestamp: "2024-01-15T09:30:00Z",
                     input: {
                         message: "message",
                     },
@@ -342,24 +336,18 @@ describe("ControllerApi", () => {
             executed_workflows: ["executed_workflows"],
             url: "url",
             trace_info: {
-                interaction_id: "interaction_id",
-                session_id: "session_id",
-                timestamp: "2024-01-15T09:30:00Z",
-                input: { message: "message", channel: "WEBSOCKET" },
+                input: { message: "message" },
                 context: {
                     active_tools: [{ tool: "tool", status: "awaiting_params" }],
                     entities: [{ entity: "entity", source: "external_context" }],
-                    params: { key: "value" },
                     static_context: [{ key: "value" }],
                     message_params: { key: "value" },
-                    structured_params: { key: "value" },
+                    response_params: { key: "value" },
                 },
                 understanding: {
                     guardrails: { passed: true },
                     intents: ["intents"],
                     extracted_params: { key: "value" },
-                    is_followup: true,
-                    followup_type: "confirmation_yes",
                 },
                 decisions: [{ tool: "tool", trigger: { type: "structured" } }],
                 response: {
@@ -441,12 +429,8 @@ describe("ControllerApi", () => {
             executed_workflows: ["executed_workflows"],
             url: "url",
             trace_info: {
-                interaction_id: "interaction_id",
-                session_id: "session_id",
-                timestamp: "2024-01-15T09:30:00Z",
                 input: {
                     message: "message",
-                    channel: "WEBSOCKET",
                 },
                 context: {
                     active_tools: [
@@ -461,9 +445,6 @@ describe("ControllerApi", () => {
                             source: "external_context",
                         },
                     ],
-                    params: {
-                        key: "value",
-                    },
                     static_context: [
                         {
                             key: "value",
@@ -472,7 +453,7 @@ describe("ControllerApi", () => {
                     message_params: {
                         key: "value",
                     },
-                    structured_params: {
+                    response_params: {
                         key: "value",
                     },
                 },
@@ -484,8 +465,6 @@ describe("ControllerApi", () => {
                     extracted_params: {
                         key: "value",
                     },
-                    is_followup: true,
-                    followup_type: "confirmation_yes",
                 },
                 decisions: [
                     {
@@ -594,7 +573,7 @@ describe("ControllerApi", () => {
                     title: "title",
                     type: "REGULAR",
                     value: { source: "user_message", value: "value" },
-                    value_history: [{ source: "user_message", value: "value" }],
+                    value_history: [],
                     presence_level: "MANDATORY",
                     facet_match_group: "HARD",
                     is_anchor: true,
@@ -641,12 +620,7 @@ describe("ControllerApi", () => {
                         source: "user_message",
                         value: "value",
                     },
-                    value_history: [
-                        {
-                            source: "user_message",
-                            value: "value",
-                        },
-                    ],
+                    value_history: [],
                     presence_level: "MANDATORY",
                     facet_match_group: "HARD",
                     is_anchor: true,
@@ -708,17 +682,20 @@ describe("ControllerApi", () => {
             networkApiKey: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-
+        const rawRequestBody = { created_by: "created_by" };
         const rawResponseBody = { suggestions: ["suggestions"], metadata_id: "metadata_id" };
         server
             .mockEndpoint()
-            .get("/api/v1/external/tasks/task_id/direct-followup-suggestions")
+            .post("/api/v1/external/direct-followup-suggestions")
+            .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.controllerApi.getDirectFollowupSuggestions("task_id");
+        const response = await client.controllerApi.getDirectFollowupSuggestions({
+            created_by: "created_by",
+        });
         expect(response).toEqual({
             suggestions: ["suggestions"],
             metadata_id: "metadata_id",
@@ -731,81 +708,21 @@ describe("ControllerApi", () => {
             networkApiKey: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-
+        const rawRequestBody = { created_by: "created_by" };
         const rawResponseBody = {};
         server
             .mockEndpoint()
-            .get("/api/v1/external/tasks/task_id/direct-followup-suggestions")
+            .post("/api/v1/external/direct-followup-suggestions")
+            .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(422)
             .jsonBody(rawResponseBody)
             .build();
 
         await expect(async () => {
-            return await client.controllerApi.getDirectFollowupSuggestions("task_id");
-        }).rejects.toThrow(Apollo.UnprocessableEntityError);
-    });
-
-    test("get_workflows_metadata (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-
-        const rawResponseBody = {
-            workflows: [
-                {
-                    id: "id",
-                    name: "name",
-                    metadata: { key: "value" },
-                    produce_options: true,
-                    is_internal_context: true,
-                },
-            ],
-        };
-        server
-            .mockEndpoint()
-            .get("/api/v1/external/workflows/metadata")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.controllerApi.getWorkflowsMetadata();
-        expect(response).toEqual({
-            workflows: [
-                {
-                    id: "id",
-                    name: "name",
-                    metadata: {
-                        key: "value",
-                    },
-                    produce_options: true,
-                    is_internal_context: true,
-                },
-            ],
-        });
-    });
-
-    test("get_workflows_metadata (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-
-        const rawResponseBody = {};
-        server
-            .mockEndpoint()
-            .get("/api/v1/external/workflows/metadata")
-            .respondWith()
-            .statusCode(422)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.controllerApi.getWorkflowsMetadata();
+            return await client.controllerApi.getDirectFollowupSuggestions({
+                created_by: "created_by",
+            });
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
 
@@ -904,6 +821,77 @@ describe("ControllerApi", () => {
             return await client.controllerApi.startTextConversation({
                 phoneNumber: "phoneNumber",
                 channel: "channel",
+            });
+        }).rejects.toThrow(Apollo.UnprocessableEntityError);
+    });
+
+    test("render_widget (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            networkApiKey: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+        const rawRequestBody = {
+            task_id: "task_id",
+            integration_code: "integration_code",
+            card_template_code: "card_template_code",
+            variables: { key: "value" },
+        };
+        const rawResponseBody = { rendered_jsx: "rendered_jsx" };
+        server
+            .mockEndpoint()
+            .post("/api/v1/external/widgets")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.controllerApi.renderWidget({
+            task_id: "task_id",
+            integration_code: "integration_code",
+            card_template_code: "card_template_code",
+            variables: {
+                key: "value",
+            },
+        });
+        expect(response).toEqual({
+            rendered_jsx: "rendered_jsx",
+        });
+    });
+
+    test("render_widget (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            networkApiKey: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+        const rawRequestBody = {
+            task_id: "task_id",
+            integration_code: "integration_code",
+            card_template_code: "card_template_code",
+            variables: { variables: { key: "value" } },
+        };
+        const rawResponseBody = {};
+        server
+            .mockEndpoint()
+            .post("/api/v1/external/widgets")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.controllerApi.renderWidget({
+                task_id: "task_id",
+                integration_code: "integration_code",
+                card_template_code: "card_template_code",
+                variables: {
+                    variables: {
+                        key: "value",
+                    },
+                },
             });
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });

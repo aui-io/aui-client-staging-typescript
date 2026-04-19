@@ -17,4 +17,5 @@ export interface SubmitMessageRequest {
     text?: string;
     context?: Apollo.Context;
     agent_variables?: Record<string, unknown>;
+    static_context?: Record<string, unknown>;
 }

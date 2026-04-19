@@ -6,6 +6,4 @@ export interface TraceUnderstanding {
     guardrails: Apollo.TraceGuardrails;
     intents?: string[];
     extracted_params?: Record<string, unknown>;
-    is_followup?: boolean;
-    followup_type?: Apollo.TraceFollowupType;
 }

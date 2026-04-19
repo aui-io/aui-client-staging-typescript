@@ -5,6 +5,10 @@ import type * as Apollo from "../index.js";
 export interface TraceDecisionCallIntegration {
     type?: Apollo.TraceDecisionType;
     tool: string;
-    integration: Apollo.TraceIntegration;
+    integration: TraceDecisionCallIntegration.Integration;
     track_id?: string;
+}
+
+export namespace TraceDecisionCallIntegration {
+    export type Integration = Apollo.TraceRestIntegration | Apollo.TraceRagIntegration | Apollo.TraceMcpIntegration;
 }

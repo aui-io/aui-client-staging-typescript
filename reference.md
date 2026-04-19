@@ -358,7 +358,7 @@ await client.controllerApi.getAgentContext({
 </dl>
 </details>
 
-<details><summary><code>client.controllerApi.<a href="/src/api/resources/controllerApi/client/Client.ts">getDirectFollowupSuggestions</a>(taskId) -> Apollo.DirectFollowupSuggestionsResponse</code></summary>
+<details><summary><code>client.controllerApi.<a href="/src/api/resources/controllerApi/client/Client.ts">getDirectFollowupSuggestions</a>({ ...params }) -> Apollo.DirectFollowupSuggestionsResponse</code></summary>
 <dl>
 <dd>
 
@@ -371,7 +371,9 @@ await client.controllerApi.getAgentContext({
 <dd>
 
 ```typescript
-await client.controllerApi.getDirectFollowupSuggestions("task_id");
+await client.controllerApi.getDirectFollowupSuggestions({
+    created_by: "created_by"
+});
 
 ```
 </dd>
@@ -387,66 +389,10 @@ await client.controllerApi.getDirectFollowupSuggestions("task_id");
 <dl>
 <dd>
 
-**taskId:** `string` 
+**request:** `Apollo.DirectFollowupSuggestionsRequest` 
     
 </dd>
 </dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `ControllerApi.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
-<details><summary><code>client.controllerApi.<a href="/src/api/resources/controllerApi/client/Client.ts">getWorkflowsMetadata</a>() -> Apollo.WorkflowsMetadataResponse</code></summary>
-<dl>
-<dd>
-
-#### 📝 Description
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-Get metadata for all workflows available for the authenticated network.
-Returns a lean version with essential workflow information.
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.controllerApi.getWorkflowsMetadata();
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
 
 <dl>
 <dd>
@@ -569,6 +515,76 @@ await client.controllerApi.startTextConversation({
 <dd>
 
 **request:** `Apollo.TextConversationInitiateRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `ControllerApi.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.controllerApi.<a href="/src/api/resources/controllerApi/client/Client.ts">renderWidget</a>({ ...params }) -> Apollo.WidgetRenderResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Render a widget card from integration data. Authenticates via network API key.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.controllerApi.renderWidget({
+    task_id: "task_id",
+    integration_code: "integration_code",
+    card_template_code: "card_template_code",
+    variables: {
+        "key": "value"
+    }
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Apollo.ExternalWidgetRenderRequest` 
     
 </dd>
 </dl>

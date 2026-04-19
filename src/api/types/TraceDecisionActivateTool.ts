@@ -7,8 +7,6 @@ export interface TraceDecisionActivateTool {
     tool: string;
     trigger: Apollo.TraceTrigger;
     track_id?: string;
-    is_fallback?: boolean;
-    fallback_origin?: string;
     referenced_entities?: Apollo.TraceReferencedEntity[];
     check_status?: Apollo.WorkflowCheckStatus;
 }

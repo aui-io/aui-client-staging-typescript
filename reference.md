@@ -371,9 +371,7 @@ await client.controllerApi.getAgentContext({
 <dd>
 
 ```typescript
-await client.controllerApi.getDirectFollowupSuggestions({
-    created_by: "created_by"
-});
+await client.controllerApi.getDirectFollowupSuggestions();
 
 ```
 </dd>

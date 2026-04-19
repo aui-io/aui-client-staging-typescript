@@ -682,7 +682,7 @@ describe("ControllerApi", () => {
             networkApiKey: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { created_by: "created_by" };
+        const rawRequestBody = {};
         const rawResponseBody = { suggestions: ["suggestions"], metadata_id: "metadata_id" };
         server
             .mockEndpoint()
@@ -693,9 +693,7 @@ describe("ControllerApi", () => {
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.controllerApi.getDirectFollowupSuggestions({
-            created_by: "created_by",
-        });
+        const response = await client.controllerApi.getDirectFollowupSuggestions();
         expect(response).toEqual({
             suggestions: ["suggestions"],
             metadata_id: "metadata_id",
@@ -708,7 +706,7 @@ describe("ControllerApi", () => {
             networkApiKey: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { created_by: "created_by" };
+        const rawRequestBody = {};
         const rawResponseBody = {};
         server
             .mockEndpoint()
@@ -720,9 +718,7 @@ describe("ControllerApi", () => {
             .build();
 
         await expect(async () => {
-            return await client.controllerApi.getDirectFollowupSuggestions({
-                created_by: "created_by",
-            });
+            return await client.controllerApi.getDirectFollowupSuggestions();
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
 

@@ -2,11 +2,9 @@
 
 /**
  * @example
- *     {
- *         created_by: "created_by"
- *     }
+ *     {}
  */
 export interface DirectFollowupSuggestionsRequest {
     context?: Record<string, unknown>;
-    created_by: string;
+    created_by?: string;
 }

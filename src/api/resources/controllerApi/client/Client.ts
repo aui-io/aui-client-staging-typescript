@@ -636,19 +636,17 @@ export class ControllerApi {
      * @throws {@link Apollo.UnprocessableEntityError}
      *
      * @example
-     *     await client.controllerApi.getDirectFollowupSuggestions({
-     *         created_by: "created_by"
-     *     })
+     *     await client.controllerApi.getDirectFollowupSuggestions()
      */
     public getDirectFollowupSuggestions(
-        request: Apollo.DirectFollowupSuggestionsRequest,
+        request: Apollo.DirectFollowupSuggestionsRequest = {},
         requestOptions?: ControllerApi.RequestOptions,
     ): core.HttpResponsePromise<Apollo.DirectFollowupSuggestionsResponse> {
         return core.HttpResponsePromise.fromPromise(this.__getDirectFollowupSuggestions(request, requestOptions));
     }
 
     private async __getDirectFollowupSuggestions(
-        request: Apollo.DirectFollowupSuggestionsRequest,
+        request: Apollo.DirectFollowupSuggestionsRequest = {},
         requestOptions?: ControllerApi.RequestOptions,
     ): Promise<core.WithRawResponse<Apollo.DirectFollowupSuggestionsResponse>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(

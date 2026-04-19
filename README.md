@@ -239,15 +239,16 @@ Submit a new message to an existing task (non-streaming).
 ```typescript
 const messageResponse = await client.controllerApi.sendMessage({
     task_id: string,              // Task identifier
-    text: string,                 // Message text
+    text?: string,                // Message text (optional in v0.1.7+)
     is_external_api?: boolean,    // Optional: mark as external API call
-    include_trace_info?: boolean, // Optional: include trace/debug info in response (NEW)
+    include_trace_info?: boolean, // Optional: include trace/debug info in response
     context?: {                   // Optional: additional context
         url?: string,
         lead_details?: Record<string, any>,
         welcome_message?: string
     },
-    agent_variables?: Record<string, unknown>  // Optional: custom agent variables
+    agent_variables?: Record<string, unknown>,  // Optional: custom agent variables
+    static_context?: Record<string, unknown>    // Optional: static context data (NEW in v0.1.7)
 });
 
 // Returns: Message - Complete agent response with optional product cards, trace_info, and rendered_jsx
@@ -324,26 +325,38 @@ console.log('Entities:', context.entities?.length);
 console.log('Static Context:', context.static_context);
 ```
 
-#### `getDirectFollowupSuggestions(taskId)` - Get Direct Followup Suggestions (NEW in v1.2.28)
-Retrieve AI-generated followup suggestions for a specific task.
+#### `getDirectFollowupSuggestions(request?)` - Get Direct Followup Suggestions (UPDATED in v0.1.7)
+Retrieve AI-generated followup suggestions. Now accepts optional `context` and `created_by` parameters instead of a task ID.
 
 ```typescript
-const suggestions: string[] = await client.controllerApi.getDirectFollowupSuggestions('your-task-id');
+const response = await client.controllerApi.getDirectFollowupSuggestions({
+    context?: Record<string, unknown>,  // Optional: context data (e.g., { task_id: 'xxx' })
+    created_by?: string                 // Optional: user identifier
+});
 
-// Returns: string[] - Array of suggested followup questions
+// Returns: DirectFollowupSuggestionsResponse
+// {
+//     suggestions?: string[],    // Array of suggested followup questions
+//     metadata_id?: string       // Metadata ID for tracking/analytics
+// }
 ```
 
 **Example:**
 
 ```typescript
-// Get followup suggestions for a task
-const suggestions: string[] = await client.controllerApi.getDirectFollowupSuggestions('your-task-id');
+const response = await client.controllerApi.getDirectFollowupSuggestions({
+    context: { task_id: 'your-task-id' },
+    created_by: 'user123'
+});
 
+console.log('Metadata ID:', response.metadata_id);
 console.log('Suggested followups:');
-suggestions.forEach((suggestion, index) => {
+response.suggestions?.forEach((suggestion, index) => {
     console.log(`${index + 1}. ${suggestion}`);
 });
 ```
+
+**Breaking change from earlier versions:** This method no longer takes `taskId` as a positional argument. Pass it via the `context` object instead.
 
 #### `getTraceInfo(taskId, messageId)` - Get Trace Info (NEW)
 Retrieve trace/debug information for a specific message. Useful for debugging agent responses and understanding the processing pipeline.
@@ -663,7 +676,7 @@ async function exploreAgentCapabilities() {
 exploreAgentCapabilities();
 ```
 
-### Get Direct Followup Suggestions (NEW in v1.2.28)
+### Get Direct Followup Suggestions (UPDATED in v0.1.7)
 
 ```typescript
 import { ApolloClient } from '@aui.io/aui-client-staging';
@@ -672,18 +685,21 @@ const client = new ApolloClient({
     networkApiKey: 'API_KEY_YOUR_KEY_HERE'
 });
 
-async function getSuggestedQuestions(taskId: string) {
+async function getSuggestedQuestions(taskId: string, userId: string) {
     try {
-        // Get AI-generated followup suggestions based on conversation context
-        const suggestions = await client.controllerApi.getDirectFollowupSuggestions(taskId);
+        // Get AI-generated followup suggestions with context and user info
+        const response = await client.controllerApi.getDirectFollowupSuggestions({
+            context: { task_id: taskId },
+            created_by: userId
+        });
         
+        console.log('Metadata ID:', response.metadata_id);
         console.log('Suggested followup questions:');
-        suggestions.forEach((suggestion, index) => {
+        response.suggestions?.forEach((suggestion, index) => {
             console.log(`  ${index + 1}. ${suggestion}`);
         });
         
-        // Use these suggestions to guide the user's next interaction
-        return suggestions;
+        return response;
     } catch (error) {
         console.error('Error getting suggestions:', error);
         throw error;
@@ -691,8 +707,9 @@ async function getSuggestedQuestions(taskId: string) {
 }
 
 // Example usage
-getSuggestedQuestions('task-123');
+getSuggestedQuestions('task-123', 'user-456');
 // Output:
+// Metadata ID: 69e4b4d4359671434fdff849
 // Suggested followup questions:
 //   1. "What colors are available?"
 //   2. "Do you offer financing options?"

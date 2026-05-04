@@ -13,12 +13,16 @@ export interface TaskParameter {
     is_anchor?: boolean;
     is_value_filled?: boolean;
     is_visible?: boolean;
+    is_exist_param?: boolean;
     param_type?: Apollo.ParameterType;
     code?: string;
 }
 
 export namespace TaskParameter {
-    export type Value = Apollo.TaskParameterValue | Apollo.TaskParameterRangeValue;
+    /**
+     * Value to compare against. Can be a literal (string, number, boolean).
+     */
+    export type Value = string | number | number | boolean | unknown[] | Record<string, unknown>;
     export type ValueHistory = ValueHistory.Item[];
 
     export namespace ValueHistory {

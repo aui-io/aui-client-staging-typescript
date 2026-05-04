@@ -217,6 +217,7 @@ describe("ControllerApi", () => {
                     understanding: { guardrails: { passed: true } },
                     decisions: [{ tool: "tool", trigger: { type: "structured" } }],
                     response: { type: "answer", message: "message" },
+                    rules_evaluations: [{ code: "code", triggered: true }],
                 },
             },
         ];
@@ -279,6 +280,12 @@ describe("ControllerApi", () => {
                         type: "answer",
                         message: "message",
                     },
+                    rules_evaluations: [
+                        {
+                            code: "code",
+                            triggered: true,
+                        },
+                    ],
                 },
             },
         ]);
@@ -359,6 +366,7 @@ describe("ControllerApi", () => {
                     block_message: "block_message",
                     error: "error",
                 },
+                rules_evaluations: [{ code: "code", triggered: true }],
             },
         };
         server
@@ -371,7 +379,8 @@ describe("ControllerApi", () => {
             .build();
 
         const response = await client.controllerApi.sendMessage({
-            include_trace_info: true,
+            include_business_trace: true,
+            include_context_trace: true,
             is_external_api: true,
             task_id: "task_id",
         });
@@ -483,6 +492,12 @@ describe("ControllerApi", () => {
                     block_message: "block_message",
                     error: "error",
                 },
+                rules_evaluations: [
+                    {
+                        code: "code",
+                        triggered: true,
+                    },
+                ],
             },
         });
     });
@@ -579,6 +594,7 @@ describe("ControllerApi", () => {
                     is_anchor: true,
                     is_value_filled: true,
                     is_visible: true,
+                    is_exist_param: true,
                     param_type: "boolean",
                     code: "code",
                 },
@@ -626,6 +642,7 @@ describe("ControllerApi", () => {
                     is_anchor: true,
                     is_value_filled: true,
                     is_visible: true,
+                    is_exist_param: true,
                     param_type: "boolean",
                     code: "code",
                 },
@@ -738,7 +755,10 @@ describe("ControllerApi", () => {
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.controllerApi.getTraceInfo("task_id", "message_id");
+        const response = await client.controllerApi.getTraceInfo("task_id", "message_id", {
+            include_business_logic: true,
+            include_context_logic: true,
+        });
         expect(response).toEqual({
             key: "value",
         });

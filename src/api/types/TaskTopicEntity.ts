@@ -11,4 +11,5 @@ export interface TaskTopicEntity {
     items?: Apollo.TaskTopicEntityItem[];
     source?: Apollo.Source;
     interaction_id?: string;
+    type?: Apollo.ScopeEntityType;
 }

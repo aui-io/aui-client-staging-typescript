@@ -14,4 +14,9 @@ export interface TextConversationInitiateRequest {
     channel: string;
     /** Optional initial message to send */
     message?: string;
+    deploySource?: string;
+    templateId?: string;
+    agentDisplayName?: string;
+    /** Existing task id to continue on the chosen channel. When omitted a new task is created (phone digits become the user_ref_id). When provided the task must exist and belong to the network attached to the caller's x-network-api-key. */
+    taskId?: string;
 }

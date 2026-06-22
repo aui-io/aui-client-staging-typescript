@@ -23,6 +23,8 @@ export interface SimpleViewCondition {
     target_param?: string;
     /** Target entity name to fetch target value to compare with by target_param instead of static value as value will be null when this is filled. */
     target_entity?: string;
+    /** When target_entity is used, fetch the target value from desired entities only. Set false to include saved task entities too. Defaults to true when not set. */
+    target_from_desired_only?: boolean;
     /** Multiple target param codes (e.g. gt_sum, gte_sum, lt_sum, lte_sum). Stored as target_param_ids in predicate kwargs. */
     target_params?: string[];
     /** Numeric offset: gt_offset/lte_offset margins, after_date_offset magnitude (with offset_unit), *_entity_sum / *_sum margins, etc. */

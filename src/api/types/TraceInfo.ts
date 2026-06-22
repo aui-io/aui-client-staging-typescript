@@ -12,6 +12,7 @@ export interface TraceInfo {
     decisions?: TraceInfo.Decisions.Item[];
     response: Apollo.TraceResponse;
     rules_evaluations?: Apollo.TraceRuleTriggerEvaluation[];
+    latency?: Apollo.LatencyMetadata;
 }
 
 export namespace TraceInfo {

@@ -4,5 +4,6 @@ export const Source = {
     DirectTopicCreation: "direct_topic_creation",
     WorkflowResponse: "workflow_response",
     UserProfile: "user_profile",
+    UserMessage: "user_message",
 } as const;
 export type Source = (typeof Source)[keyof typeof Source];

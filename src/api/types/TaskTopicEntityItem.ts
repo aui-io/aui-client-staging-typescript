@@ -5,6 +5,7 @@ import type * as Apollo from "../index.js";
 export interface TaskTopicEntityItem {
     id?: string;
     parameters?: Apollo.EntityItemParameter[];
+    extracted_parameters?: Apollo.TaskParameter[];
     fields?: Record<string, unknown>;
     identifier?: unknown;
     sub_entities?: Apollo.EntityItemSubEntity[];

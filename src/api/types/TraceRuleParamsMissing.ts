@@ -6,9 +6,9 @@ export interface TraceRuleParamsMissing {
     type?: Apollo.TraceRuleType;
     action?: Apollo.TraceRuleAction;
     status: Apollo.TraceParamsCheckStatus;
-    /** Per mandatory group (workflow order); inner list = unfilled param codes. */
+    /** Per mandatory group (workflow order); inner list = unfilled params, one entry per short option for a per-entity miss. */
     required_missing_params_by_group?: string[][];
-    /** Per optional group (workflow order); inner list = unfilled param codes. */
+    /** Per optional group (workflow order); inner list = unfilled params. */
     optional_missing_params_by_group?: string[][];
     reason?: string;
     code?: string;

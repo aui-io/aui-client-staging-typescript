@@ -13,4 +13,5 @@ export interface TraceResponse {
     asking_for?: string[];
     block_message?: string;
     error?: string;
+    jsx_widgets?: Apollo.TraceJsxWidget[];
 }

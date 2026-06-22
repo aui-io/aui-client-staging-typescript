@@ -257,57 +257,6 @@ await client.controllerApi.sendMessage({
 </dl>
 </details>
 
-<details><summary><code>client.controllerApi.<a href="/src/api/resources/controllerApi/client/Client.ts">getProductMetadata</a>({ ...params }) -> Record<string, unknown></code></summary>
-<dl>
-<dd>
-
-#### 🔌 Usage
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-```typescript
-await client.controllerApi.getProductMetadata({
-    link: "link"
-});
-
-```
-</dd>
-</dl>
-</dd>
-</dl>
-
-#### ⚙️ Parameters
-
-<dl>
-<dd>
-
-<dl>
-<dd>
-
-**request:** `Apollo.GetProductMetadataRequest` 
-    
-</dd>
-</dl>
-
-<dl>
-<dd>
-
-**requestOptions:** `ControllerApi.RequestOptions` 
-    
-</dd>
-</dl>
-</dd>
-</dl>
-
-
-</dd>
-</dl>
-</details>
-
 <details><summary><code>client.controllerApi.<a href="/src/api/resources/controllerApi/client/Client.ts">getAgentContext</a>({ ...params }) -> Apollo.CreateTopicRequestBody</code></summary>
 <dl>
 <dd>
@@ -488,9 +437,14 @@ await client.controllerApi.getTraceInfo("task_id", "message_id", {
 <dl>
 <dd>
 
-Start a text conversation (WhatsApp or SMS).
+Start (or continue) a text conversation on WhatsApp or SMS.
 
-Creates a task and then proxies to third-party-auth(BE) service to send the initial message.
+- When `taskId` is omitted, a fresh task is created with the phone digits
+  as the user_ref_id (original deploy behaviour).
+- When `taskId` is provided, the existing task is reused — after verifying
+  it exists and belongs to the network attached to the caller's
+  x-network-api-key. This lets operators continue a playground task on
+  WhatsApp instead of always spawning a new conversation.
 </dd>
 </dl>
 </dd>

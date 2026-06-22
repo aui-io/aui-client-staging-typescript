@@ -6,4 +6,5 @@ export interface TraceIntegrationRequest {
     method: string;
     category: string;
     params?: unknown;
+    headers?: Record<string, unknown>;
 }

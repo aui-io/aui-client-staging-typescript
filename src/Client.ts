@@ -23,7 +23,7 @@ export class ApolloClient {
             logging: core.logging.createLogger(_options?.logging),
             headers: mergeHeaders(
                 {
-                    "x-network-api-key": _options?.networkApiKey,
+                    "x-aui-organization-id": _options?.auiOrganizationId,
                     "X-Fern-Language": "JavaScript",
                     "X-Fern-SDK-Name": "@aui.io/aui-client-staging",
                     "X-Fern-SDK-Version": "0.1.10",

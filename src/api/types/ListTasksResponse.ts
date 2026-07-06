@@ -3,7 +3,7 @@
 import type * as Apollo from "../index.js";
 
 export interface ListTasksResponse {
-    tasks?: Apollo.CreateTaskResponse[];
+    items: Apollo.TaskListItemSchema[];
     total: number;
     page: number;
     size: number;

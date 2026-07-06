@@ -21,44 +21,42 @@ export class ControllerApi {
     }
 
     /**
-     * @param {Apollo.ListUserTasksRequest} request
+     * Exchange a credential for a short-lived access token. Supported grant types: `publishable_key`. Refresh and other grants will be added on the same endpoint.
+     *
+     * @param {Apollo.IssueTokenRequestBody} request
      * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
      *
+     * @throws {@link Apollo.BadRequestError}
      * @throws {@link Apollo.UnprocessableEntityError}
+     * @throws {@link Apollo.BadGatewayError}
      *
      * @example
-     *     await client.controllerApi.listUserTasks({
-     *         user_id: "user_id",
-     *         page: 1,
-     *         size: 1
+     *     await client.controllerApi.issueToken({
+     *         "x-aui-end-user-id": "x-aui-end-user-id",
+     *         "x-aui-end-user-data": "x-aui-end-user-data",
+     *         grant_type: "publishable_key",
+     *         publishable_key: "pk_network_..."
      *     })
      */
-    public listUserTasks(
-        request: Apollo.ListUserTasksRequest,
+    public issueToken(
+        request: Apollo.IssueTokenRequestBody,
         requestOptions?: ControllerApi.RequestOptions,
-    ): core.HttpResponsePromise<Apollo.ListTasksResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__listUserTasks(request, requestOptions));
+    ): core.HttpResponsePromise<Apollo.TokenResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__issueToken(request, requestOptions));
     }
 
-    private async __listUserTasks(
-        request: Apollo.ListUserTasksRequest,
+    private async __issueToken(
+        request: Apollo.IssueTokenRequestBody,
         requestOptions?: ControllerApi.RequestOptions,
-    ): Promise<core.WithRawResponse<Apollo.ListTasksResponse>> {
-        const { user_id: userId, page, size } = request;
-        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
-        _queryParams.user_id = userId;
-        if (page != null) {
-            _queryParams.page = page.toString();
-        }
-
-        if (size != null) {
-            _queryParams.size = size.toString();
-        }
-
+    ): Promise<core.WithRawResponse<Apollo.TokenResponse>> {
+        const { "x-aui-end-user-id": auiEndUserId, "x-aui-end-user-data": auiEndUserData, ..._body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-end-user-id": auiEndUserId != null ? auiEndUserId : undefined,
+                "x-aui-end-user-data": auiEndUserData != null ? auiEndUserData : undefined,
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
             }),
             requestOptions?.headers,
         );
@@ -66,7 +64,131 @@ export class ControllerApi {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                "api/v1/external/tasks",
+                "v1/management/auth/token",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: _body,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Apollo.TokenResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Apollo.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 422:
+                    throw new Apollo.UnprocessableEntityError(
+                        _response.error.body as Apollo.HttpValidationError,
+                        _response.rawResponse,
+                    );
+                case 502:
+                    throw new Apollo.BadGatewayError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.ApolloError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.ApolloError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.ApolloTimeoutError("Timeout exceeded when calling POST /v1/management/auth/token.");
+            case "unknown":
+                throw new errors.ApolloError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * @param {Apollo.ControllerApiListUserTasksRequest} request
+     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Apollo.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.controllerApi.listUserTasks({
+     *         organization_id: "organization_id",
+     *         user_id: "user_id",
+     *         account_id: "account_id",
+     *         network_id: "network_id",
+     *         page: 1,
+     *         limit: 1
+     *     })
+     */
+    public listUserTasks(
+        request: Apollo.ControllerApiListUserTasksRequest,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): core.HttpResponsePromise<Apollo.ListTasksResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__listUserTasks(request, requestOptions));
+    }
+
+    private async __listUserTasks(
+        request: Apollo.ControllerApiListUserTasksRequest,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): Promise<core.WithRawResponse<Apollo.ListTasksResponse>> {
+        const {
+            organization_id: organizationId,
+            user_id: userId,
+            account_id: accountId,
+            network_id: networkId,
+            page,
+            limit,
+        } = request;
+        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
+        _queryParams.organization_id = organizationId;
+        if (userId != null) {
+            _queryParams.user_id = userId;
+        }
+
+        if (accountId != null) {
+            _queryParams.account_id = accountId;
+        }
+
+        if (networkId != null) {
+            _queryParams.network_id = networkId;
+        }
+
+        if (page != null) {
+            _queryParams.page = page.toString();
+        }
+
+        if (limit != null) {
+            _queryParams.limit = limit.toString();
+        }
+
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
+            }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
+                "v1/messaging/tasks",
             ),
             method: "GET",
             headers: _headers,
@@ -105,7 +227,7 @@ export class ControllerApi {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.ApolloTimeoutError("Timeout exceeded when calling GET /api/v1/external/tasks.");
+                throw new errors.ApolloTimeoutError("Timeout exceeded when calling GET /v1/messaging/tasks.");
             case "unknown":
                 throw new errors.ApolloError({
                     message: _response.error.errorMessage,
@@ -115,6 +237,13 @@ export class ControllerApi {
     }
 
     /**
+     * Creates a task for ``data.agent_id``: Apollo resolves the network (and active
+     * version) from agent-settings and runs task creation inside intelligent-agent.
+     *
+     * The trust boundary is ``require_organization_id`` (gateway/token) plus a check
+     * that the agent's organization matches it — the network scope dependency is no
+     * longer used here.
+     *
      * @param {Apollo.CreateTaskRequest} request
      * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -122,8 +251,11 @@ export class ControllerApi {
      *
      * @example
      *     await client.controllerApi.createTask({
+     *         "x-aui-user-id": "x-aui-user-id",
+     *         "x-aui-source": "x-aui-source",
+     *         agent_id: "agent_id",
      *         user_id: "user_id",
-     *         task_origin_type: "stores"
+     *         task_origin_type: "task_origin_type"
      *     })
      */
     public createTask(
@@ -137,10 +269,14 @@ export class ControllerApi {
         request: Apollo.CreateTaskRequest,
         requestOptions?: ControllerApi.RequestOptions,
     ): Promise<core.WithRawResponse<Apollo.CreateTaskResponse>> {
+        const { "x-aui-user-id": auiUserId, "x-aui-source": auiSource, ..._body } = request;
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-user-id": auiUserId != null ? auiUserId : undefined,
+                "x-aui-source": auiSource != null ? auiSource : undefined,
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
             }),
             requestOptions?.headers,
         );
@@ -148,14 +284,14 @@ export class ControllerApi {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                "api/v1/external/tasks",
+                "v1/messaging/tasks",
             ),
             method: "POST",
             headers: _headers,
             contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
             requestType: "json",
-            body: request,
+            body: _body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -190,7 +326,267 @@ export class ControllerApi {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.ApolloTimeoutError("Timeout exceeded when calling POST /api/v1/external/tasks.");
+                throw new errors.ApolloTimeoutError("Timeout exceeded when calling POST /v1/messaging/tasks.");
+            case "unknown":
+                throw new errors.ApolloError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * @param {string} taskId
+     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Apollo.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.controllerApi.getTaskMessages("task_id")
+     */
+    public getTaskMessages(
+        taskId: string,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): core.HttpResponsePromise<unknown[]> {
+        return core.HttpResponsePromise.fromPromise(this.__getTaskMessages(taskId, requestOptions));
+    }
+
+    private async __getTaskMessages(
+        taskId: string,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): Promise<core.WithRawResponse<unknown[]>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
+            }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
+                `v1/messaging/tasks/${core.url.encodePathParam(taskId)}/messages`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body as unknown[], rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    throw new Apollo.UnprocessableEntityError(
+                        _response.error.body as Apollo.HttpValidationError,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.ApolloError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.ApolloError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.ApolloTimeoutError(
+                    "Timeout exceeded when calling GET /v1/messaging/tasks/{task_id}/messages.",
+                );
+            case "unknown":
+                throw new errors.ApolloError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Mirrors IA's external trace-info endpoint.
+     *
+     * The IA call is scoped only by ``task_id`` + ``interaction_id`` (the service
+     * ignores network scope); org-id is enforced by the router-level
+     * ``require_organization_id`` gate.
+     *
+     * @param {string} taskId
+     * @param {string} interactionId
+     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Apollo.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.controllerApi.getTraceInfo("task_id", "interaction_id")
+     */
+    public getTraceInfo(
+        taskId: string,
+        interactionId: string,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): core.HttpResponsePromise<Record<string, unknown>> {
+        return core.HttpResponsePromise.fromPromise(this.__getTraceInfo(taskId, interactionId, requestOptions));
+    }
+
+    private async __getTraceInfo(
+        taskId: string,
+        interactionId: string,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): Promise<core.WithRawResponse<Record<string, unknown>>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
+            }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
+                `v1/messaging/tasks/${core.url.encodePathParam(taskId)}/interactions/${core.url.encodePathParam(interactionId)}/trace-info`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Record<string, unknown>, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    throw new Apollo.UnprocessableEntityError(
+                        _response.error.body as Apollo.HttpValidationError,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.ApolloError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.ApolloError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.ApolloTimeoutError(
+                    "Timeout exceeded when calling GET /v1/messaging/tasks/{task_id}/interactions/{interaction_id}/trace-info.",
+                );
+            case "unknown":
+                throw new errors.ApolloError({
+                    message: _response.error.errorMessage,
+                    rawResponse: _response.rawResponse,
+                });
+        }
+    }
+
+    /**
+     * Mirrors IA's task-level trace-info endpoint (all interaction traces).
+     *
+     * Like the interaction-level route, the IA call is scoped only by ``task_id``;
+     * org-id is enforced by the router-level ``require_organization_id`` gate.
+     *
+     * @param {string} taskId
+     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Apollo.UnprocessableEntityError}
+     *
+     * @example
+     *     await client.controllerApi.getTaskTraceInfo("task_id")
+     */
+    public getTaskTraceInfo(
+        taskId: string,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): core.HttpResponsePromise<Record<string, unknown>[]> {
+        return core.HttpResponsePromise.fromPromise(this.__getTaskTraceInfo(taskId, requestOptions));
+    }
+
+    private async __getTaskTraceInfo(
+        taskId: string,
+        requestOptions?: ControllerApi.RequestOptions,
+    ): Promise<core.WithRawResponse<Record<string, unknown>[]>> {
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
+            }),
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
+                `v1/messaging/tasks/${core.url.encodePathParam(taskId)}/trace-info`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Record<string, unknown>[], rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 422:
+                    throw new Apollo.UnprocessableEntityError(
+                        _response.error.body as Apollo.HttpValidationError,
+                        _response.rawResponse,
+                    );
+                default:
+                    throw new errors.ApolloError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        switch (_response.error.reason) {
+            case "non-json":
+                throw new errors.ApolloError({
+                    statusCode: _response.error.statusCode,
+                    body: _response.error.rawBody,
+                    rawResponse: _response.rawResponse,
+                });
+            case "timeout":
+                throw new errors.ApolloTimeoutError(
+                    "Timeout exceeded when calling GET /v1/messaging/tasks/{task_id}/trace-info.",
+                );
             case "unknown":
                 throw new errors.ApolloError({
                     message: _response.error.errorMessage,
@@ -222,7 +618,8 @@ export class ControllerApi {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
             }),
             requestOptions?.headers,
         );
@@ -230,7 +627,7 @@ export class ControllerApi {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                `api/v1/external/tasks/${core.url.encodePathParam(taskId)}`,
+                `v1/messaging/tasks/${core.url.encodePathParam(taskId)}`,
             ),
             method: "GET",
             headers: _headers,
@@ -269,9 +666,7 @@ export class ControllerApi {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.ApolloTimeoutError(
-                    "Timeout exceeded when calling GET /api/v1/external/tasks/{task_id}.",
-                );
+                throw new errors.ApolloTimeoutError("Timeout exceeded when calling GET /v1/messaging/tasks/{task_id}.");
             case "unknown":
                 throw new errors.ApolloError({
                     message: _response.error.errorMessage,
@@ -281,87 +676,9 @@ export class ControllerApi {
     }
 
     /**
-     * @param {string} taskId
-     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
+     * Same behavior as intelligent-agent POST /api/v1/external/message, orchestrated from apollo-api
+     * using internal /api/v1/* endpoints (no call to /external/message).
      *
-     * @throws {@link Apollo.UnprocessableEntityError}
-     *
-     * @example
-     *     await client.controllerApi.getTaskMessages("task_id")
-     */
-    public getTaskMessages(
-        taskId: string,
-        requestOptions?: ControllerApi.RequestOptions,
-    ): core.HttpResponsePromise<Apollo.Message[]> {
-        return core.HttpResponsePromise.fromPromise(this.__getTaskMessages(taskId, requestOptions));
-    }
-
-    private async __getTaskMessages(
-        taskId: string,
-        requestOptions?: ControllerApi.RequestOptions,
-    ): Promise<core.WithRawResponse<Apollo.Message[]>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
-            }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                `api/v1/external/tasks/${core.url.encodePathParam(taskId)}/messages`,
-            ),
-            method: "GET",
-            headers: _headers,
-            queryParameters: requestOptions?.queryParams,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-            fetchFn: this._options?.fetch,
-            logging: this._options.logging,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Apollo.Message[], rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 422:
-                    throw new Apollo.UnprocessableEntityError(
-                        _response.error.body as Apollo.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.ApolloError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.ApolloError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.ApolloTimeoutError(
-                    "Timeout exceeded when calling GET /api/v1/external/tasks/{task_id}/messages.",
-                );
-            case "unknown":
-                throw new errors.ApolloError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
      * @param {Apollo.SubmitMessageRequest} request
      * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -369,9 +686,9 @@ export class ControllerApi {
      *
      * @example
      *     await client.controllerApi.sendMessage({
-     *         include_business_trace: true,
-     *         include_context_trace: true,
-     *         is_external_api: true,
+     *         "x-aui-source": "x-aui-source",
+     *         "x-aui-client": "x-aui-client",
+     *         include_trace: true,
      *         task_id: "task_id"
      *     })
      */
@@ -386,29 +703,19 @@ export class ControllerApi {
         request: Apollo.SubmitMessageRequest,
         requestOptions?: ControllerApi.RequestOptions,
     ): Promise<core.WithRawResponse<Apollo.Message>> {
-        const {
-            include_business_trace: includeBusinessTrace,
-            include_context_trace: includeContextTrace,
-            is_external_api: isExternalApi,
-            ..._body
-        } = request;
+        const { include_trace: includeTrace, "x-aui-source": auiSource, "x-aui-client": auiClient, ..._body } = request;
         const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
-        if (includeBusinessTrace != null) {
-            _queryParams.include_business_trace = includeBusinessTrace.toString();
-        }
-
-        if (includeContextTrace != null) {
-            _queryParams.include_context_trace = includeContextTrace.toString();
-        }
-
-        if (isExternalApi != null) {
-            _queryParams.is_external_api = isExternalApi.toString();
+        if (includeTrace != null) {
+            _queryParams.include_trace = includeTrace.toString();
         }
 
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-source": auiSource != null ? auiSource : undefined,
+                "x-aui-client": auiClient != null ? auiClient : undefined,
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
             }),
             requestOptions?.headers,
         );
@@ -416,7 +723,7 @@ export class ControllerApi {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                "api/v1/external/message",
+                "v1/messaging/messages",
             ),
             method: "POST",
             headers: _headers,
@@ -458,7 +765,7 @@ export class ControllerApi {
                     rawResponse: _response.rawResponse,
                 });
             case "timeout":
-                throw new errors.ApolloTimeoutError("Timeout exceeded when calling POST /api/v1/external/message.");
+                throw new errors.ApolloTimeoutError("Timeout exceeded when calling POST /v1/messaging/messages.");
             case "unknown":
                 throw new errors.ApolloError({
                     message: _response.error.errorMessage,
@@ -468,31 +775,32 @@ export class ControllerApi {
     }
 
     /**
-     * @param {Record<string, unknown>} request
+     * @param {Apollo.PresignedUploadRequest} request
      * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Apollo.UnprocessableEntityError}
      *
      * @example
-     *     await client.controllerApi.getAgentContext({
-     *         "key": "value"
+     *     await client.controllerApi.createPresignedUploadUrl({
+     *         filename: "filename"
      *     })
      */
-    public getAgentContext(
-        request: Record<string, unknown>,
+    public createPresignedUploadUrl(
+        request: Apollo.PresignedUploadRequest,
         requestOptions?: ControllerApi.RequestOptions,
-    ): core.HttpResponsePromise<Apollo.CreateTopicRequestBody> {
-        return core.HttpResponsePromise.fromPromise(this.__getAgentContext(request, requestOptions));
+    ): core.HttpResponsePromise<Apollo.PresignedUploadResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__createPresignedUploadUrl(request, requestOptions));
     }
 
-    private async __getAgentContext(
-        request: Record<string, unknown>,
+    private async __createPresignedUploadUrl(
+        request: Apollo.PresignedUploadRequest,
         requestOptions?: ControllerApi.RequestOptions,
-    ): Promise<core.WithRawResponse<Apollo.CreateTopicRequestBody>> {
+    ): Promise<core.WithRawResponse<Apollo.PresignedUploadResponse>> {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
             }),
             requestOptions?.headers,
         );
@@ -500,7 +808,7 @@ export class ControllerApi {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                "api/v1/external/agent-context",
+                "v1/messaging/uploads/presign",
             ),
             method: "POST",
             headers: _headers,
@@ -515,7 +823,7 @@ export class ControllerApi {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Apollo.CreateTopicRequestBody, rawResponse: _response.rawResponse };
+            return { data: _response.body as Apollo.PresignedUploadResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -543,7 +851,7 @@ export class ControllerApi {
                 });
             case "timeout":
                 throw new errors.ApolloTimeoutError(
-                    "Timeout exceeded when calling POST /api/v1/external/agent-context.",
+                    "Timeout exceeded when calling POST /v1/messaging/uploads/presign.",
                 );
             case "unknown":
                 throw new errors.ApolloError({
@@ -554,202 +862,6 @@ export class ControllerApi {
     }
 
     /**
-     * @param {Apollo.DirectFollowupSuggestionsRequest} request
-     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Apollo.UnprocessableEntityError}
-     *
-     * @example
-     *     await client.controllerApi.getDirectFollowupSuggestions()
-     */
-    public getDirectFollowupSuggestions(
-        request: Apollo.DirectFollowupSuggestionsRequest = {},
-        requestOptions?: ControllerApi.RequestOptions,
-    ): core.HttpResponsePromise<Apollo.DirectFollowupSuggestionsResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__getDirectFollowupSuggestions(request, requestOptions));
-    }
-
-    private async __getDirectFollowupSuggestions(
-        request: Apollo.DirectFollowupSuggestionsRequest = {},
-        requestOptions?: ControllerApi.RequestOptions,
-    ): Promise<core.WithRawResponse<Apollo.DirectFollowupSuggestionsResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
-            }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                "api/v1/external/direct-followup-suggestions",
-            ),
-            method: "POST",
-            headers: _headers,
-            contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-            fetchFn: this._options?.fetch,
-            logging: this._options.logging,
-        });
-        if (_response.ok) {
-            return {
-                data: _response.body as Apollo.DirectFollowupSuggestionsResponse,
-                rawResponse: _response.rawResponse,
-            };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 422:
-                    throw new Apollo.UnprocessableEntityError(
-                        _response.error.body as Apollo.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.ApolloError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.ApolloError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.ApolloTimeoutError(
-                    "Timeout exceeded when calling POST /api/v1/external/direct-followup-suggestions.",
-                );
-            case "unknown":
-                throw new errors.ApolloError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * @param {string} taskId
-     * @param {string} messageId
-     * @param {Apollo.GetTraceInfoRequest} request
-     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Apollo.UnprocessableEntityError}
-     *
-     * @example
-     *     await client.controllerApi.getTraceInfo("task_id", "message_id", {
-     *         include_business_logic: true,
-     *         include_context_logic: true
-     *     })
-     */
-    public getTraceInfo(
-        taskId: string,
-        messageId: string,
-        request: Apollo.GetTraceInfoRequest = {},
-        requestOptions?: ControllerApi.RequestOptions,
-    ): core.HttpResponsePromise<Record<string, unknown>> {
-        return core.HttpResponsePromise.fromPromise(this.__getTraceInfo(taskId, messageId, request, requestOptions));
-    }
-
-    private async __getTraceInfo(
-        taskId: string,
-        messageId: string,
-        request: Apollo.GetTraceInfoRequest = {},
-        requestOptions?: ControllerApi.RequestOptions,
-    ): Promise<core.WithRawResponse<Record<string, unknown>>> {
-        const { include_business_logic: includeBusinessLogic, include_context_logic: includeContextLogic } = request;
-        const _queryParams: Record<string, string | string[] | object | object[] | null> = {};
-        if (includeBusinessLogic != null) {
-            _queryParams.include_business_logic = includeBusinessLogic.toString();
-        }
-
-        if (includeContextLogic != null) {
-            _queryParams.include_context_logic = includeContextLogic.toString();
-        }
-
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
-            }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                `api/v1/external/tasks/${core.url.encodePathParam(taskId)}/messages/${core.url.encodePathParam(messageId)}/trace-info`,
-            ),
-            method: "GET",
-            headers: _headers,
-            queryParameters: { ..._queryParams, ...requestOptions?.queryParams },
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-            fetchFn: this._options?.fetch,
-            logging: this._options.logging,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Record<string, unknown>, rawResponse: _response.rawResponse };
-        }
-
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 422:
-                    throw new Apollo.UnprocessableEntityError(
-                        _response.error.body as Apollo.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.ApolloError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.ApolloError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.ApolloTimeoutError(
-                    "Timeout exceeded when calling GET /api/v1/external/tasks/{task_id}/messages/{message_id}/trace-info.",
-                );
-            case "unknown":
-                throw new errors.ApolloError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
-    }
-
-    /**
-     * Start (or continue) a text conversation on WhatsApp or SMS.
-     *
-     * - When `taskId` is omitted, a fresh task is created with the phone digits
-     *   as the user_ref_id (original deploy behaviour).
-     * - When `taskId` is provided, the existing task is reused — after verifying
-     *   it exists and belongs to the network attached to the caller's
-     *   x-network-api-key. This lets operators continue a playground task on
-     *   WhatsApp instead of always spawning a new conversation.
-     *
      * @param {Apollo.TextConversationInitiateRequest} request
      * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -758,7 +870,7 @@ export class ControllerApi {
      * @example
      *     await client.controllerApi.startTextConversation({
      *         phoneNumber: "phoneNumber",
-     *         channel: "channel"
+     *         agentId: "agentId"
      *     })
      */
     public startTextConversation(
@@ -775,7 +887,8 @@ export class ControllerApi {
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
             mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
+                Authorization: await this._getAuthorizationHeader(),
+                "x-aui-organization-id": requestOptions?.auiOrganizationId ?? this._options?.auiOrganizationId,
             }),
             requestOptions?.headers,
         );
@@ -783,7 +896,7 @@ export class ControllerApi {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                "api/v1/external/text/conversation",
+                "v1/channels/whatsapp/conversations",
             ),
             method: "POST",
             headers: _headers,
@@ -829,7 +942,7 @@ export class ControllerApi {
                 });
             case "timeout":
                 throw new errors.ApolloTimeoutError(
-                    "Timeout exceeded when calling POST /api/v1/external/text/conversation.",
+                    "Timeout exceeded when calling POST /v1/channels/whatsapp/conversations.",
                 );
             case "unknown":
                 throw new errors.ApolloError({
@@ -839,94 +952,12 @@ export class ControllerApi {
         }
     }
 
-    /**
-     * Render a widget card from integration data. Authenticates via network API key.
-     *
-     * @param {Apollo.ExternalWidgetRenderRequest} request
-     * @param {ControllerApi.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Apollo.UnprocessableEntityError}
-     *
-     * @example
-     *     await client.controllerApi.renderWidget({
-     *         task_id: "task_id",
-     *         integration_code: "integration_code",
-     *         card_template_code: "card_template_code",
-     *         variables: {
-     *             "key": "value"
-     *         }
-     *     })
-     */
-    public renderWidget(
-        request: Apollo.ExternalWidgetRenderRequest,
-        requestOptions?: ControllerApi.RequestOptions,
-    ): core.HttpResponsePromise<Apollo.WidgetRenderResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__renderWidget(request, requestOptions));
-    }
-
-    private async __renderWidget(
-        request: Apollo.ExternalWidgetRenderRequest,
-        requestOptions?: ControllerApi.RequestOptions,
-    ): Promise<core.WithRawResponse<Apollo.WidgetRenderResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
-            this._options?.headers,
-            mergeOnlyDefinedHeaders({
-                "x-network-api-key": requestOptions?.networkApiKey ?? this._options?.networkApiKey,
-            }),
-            requestOptions?.headers,
-        );
-        const _response = await core.fetcher({
-            url: core.url.join(
-                (await core.Supplier.get(this._options.baseUrl)) ??
-                    ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp).base,
-                "api/v1/external/widgets",
-            ),
-            method: "POST",
-            headers: _headers,
-            contentType: "application/json",
-            queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
-            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
-            abortSignal: requestOptions?.abortSignal,
-            fetchFn: this._options?.fetch,
-            logging: this._options.logging,
-        });
-        if (_response.ok) {
-            return { data: _response.body as Apollo.WidgetRenderResponse, rawResponse: _response.rawResponse };
+    protected async _getAuthorizationHeader(): Promise<string | undefined> {
+        const bearer = await core.Supplier.get(this._options.token);
+        if (bearer != null) {
+            return `Bearer ${bearer}`;
         }
 
-        if (_response.error.reason === "status-code") {
-            switch (_response.error.statusCode) {
-                case 422:
-                    throw new Apollo.UnprocessableEntityError(
-                        _response.error.body as Apollo.HttpValidationError,
-                        _response.rawResponse,
-                    );
-                default:
-                    throw new errors.ApolloError({
-                        statusCode: _response.error.statusCode,
-                        body: _response.error.body,
-                        rawResponse: _response.rawResponse,
-                    });
-            }
-        }
-
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.ApolloError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.ApolloTimeoutError("Timeout exceeded when calling POST /api/v1/external/widgets.");
-            case "unknown":
-                throw new errors.ApolloError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return undefined;
     }
 }

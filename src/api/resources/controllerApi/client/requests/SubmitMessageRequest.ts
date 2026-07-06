@@ -5,20 +5,27 @@ import type * as Apollo from "../../../../index.js";
 /**
  * @example
  *     {
- *         include_business_trace: true,
- *         include_context_trace: true,
- *         is_external_api: true,
+ *         "x-aui-source": "x-aui-source",
+ *         "x-aui-client": "x-aui-client",
+ *         include_trace: true,
  *         task_id: "task_id"
  *     }
  */
 export interface SubmitMessageRequest {
-    /** When true, includes NLU/understanding and business decisions (rules, tools, params, etc.) in trace_info. */
-    include_business_trace?: boolean;
-    /** When true, includes the context section and call_integration (REST/RAG/MCP) decisions in trace_info. */
-    include_context_trace?: boolean;
-    is_external_api?: boolean;
+    /** When true, makes a second call to fetch the interaction trace and returns it in the response 'trace_info' field. */
+    include_trace?: boolean;
+    "x-aui-source"?: string;
+    "x-aui-client"?: string;
+    type?: "message";
     task_id: string;
     text?: string;
-    context?: Apollo.Context;
+    /** Optional image URL attached to the user message (e.g. the signed `image_url` from POST /messaging/uploads/presign). Forwarded to intelligent-agent as `body.image.signed_url` for vision input. */
+    image_url?: string;
+    context?: Apollo.SubmitMessageContext;
     agent_variables?: Record<string, unknown>;
+    selected_tools?: Apollo.ExternalSelectedTool[];
+    /** Optional message-level agent version override. Provide 'version_id' and/or 'version_tag' to run this single message/interaction on a specific revision while leaving the task's stored version untouched. A 'version_tag' alone is sufficient (the bundle pull is keyed by '(agent_id, version_tag)'); when only 'version_id' is given, intelligent-agent resolves that version's tag. 'bundle_mode' is always sourced from the agent record and is not client-selectable. 'agent_id' is optional; if set it must match the task's agent — cross-agent switching is not supported and is rejected by intelligent-agent with a validation error. Omit (or pass null) to run on the task-level version. */
+    agent?: Apollo.AgentMetadataSchema;
+    /** Optional agent settings bundle. When provided, it is forwarded to intelligent-agent under 'external_context.agent_settings_bundle'. */
+    agent_settings_bundle?: Record<string, unknown>;
 }

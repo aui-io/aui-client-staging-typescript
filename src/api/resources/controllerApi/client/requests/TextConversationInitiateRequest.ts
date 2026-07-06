@@ -4,19 +4,22 @@
  * @example
  *     {
  *         phoneNumber: "phoneNumber",
- *         channel: "channel"
+ *         agentId: "agentId"
  *     }
  */
 export interface TextConversationInitiateRequest {
-    /** Phone number in E.164 format (e.g., +1234567890) */
+    /** E.164 phone number. */
     phoneNumber: string;
-    /** Channel type: 'whatsapp' or 'sms' */
-    channel: string;
-    /** Optional initial message to send */
-    message?: string;
-    deploySource?: string;
-    templateId?: string;
-    agentDisplayName?: string;
-    /** Existing task id to continue on the chosen channel. When omitted a new task is created (phone digits become the user_ref_id). When provided the task must exist and belong to the network attached to the caller's x-network-api-key. */
+    /** Agent the conversation targets. Apollo resolves the network (and active version) from agent-settings; the agent's organization must match the caller's organization. Mirrors the agent-first contract used by the other APIs (e.g. create-task). */
+    agentId: string;
+    /** When set, continue this task instead of creating a new one. */
     taskId?: string;
+    /** User ref id for a new task; defaults to phone digits. */
+    userRefId?: string;
+    /** Twilio Content template SID override. */
+    templateId?: string;
+    /** Bound to template variable {{1}}. */
+    agentDisplayName?: string;
+    /** Additional template variable overrides ({{2}}, {{3}}, …). */
+    contentVariables?: Record<string, string | undefined>;
 }

@@ -2,16 +2,22 @@
 
 import type * as Apollo from "../index.js";
 
+/**
+ * Agent reply in external API shape (used by both WS and REST).
+ */
 export interface Message {
     id: string;
     created_at: string;
     text: string;
-    sender: Apollo.MessageContactParty;
-    receiver: Apollo.MessageContactParty;
-    cards: Apollo.Card[];
+    sender: Apollo.ContactParty;
+    receiver: Apollo.ContactParty;
+    cards?: Apollo.Card[];
     welcome_message?: string;
-    followup_suggestions: string[];
-    executed_workflows?: string[];
+    followup_suggestions?: string[];
     url?: string;
-    trace_info?: Apollo.TraceInfo;
+    input_tokens?: number;
+    output_tokens?: number;
+    trace_info?: Record<string, unknown>;
+    /** Accepts any additional properties */
+    [key: string]: any;
 }

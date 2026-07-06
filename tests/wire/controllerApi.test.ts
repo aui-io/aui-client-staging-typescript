@@ -5,48 +5,162 @@ import { ApolloClient } from "../../src/Client";
 import { mockServerPool } from "../mock-server/MockServerPool";
 
 describe("ControllerApi", () => {
-    test("list_user_tasks (1)", async () => {
+    test("issueToken (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+        const rawRequestBody = { grant_type: "publishable_key", publishable_key: "pk_network_..." };
+        const rawResponseBody = {
+            access_token: "access_token",
+            token_type: "token_type",
+            expires_in: 1,
+            agent_id: "agent_id",
+            organization_id: "organization_id",
+        };
+        server
+            .mockEndpoint()
+            .post("/v1/management/auth/token")
+            .header("x-aui-end-user-id", "x-aui-end-user-id")
+            .header("x-aui-end-user-data", "x-aui-end-user-data")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.controllerApi.issueToken({
+            "x-aui-end-user-id": "x-aui-end-user-id",
+            "x-aui-end-user-data": "x-aui-end-user-data",
+            grant_type: "publishable_key",
+            publishable_key: "pk_network_...",
+        });
+        expect(response).toEqual({
+            access_token: "access_token",
+            token_type: "token_type",
+            expires_in: 1,
+            agent_id: "agent_id",
+            organization_id: "organization_id",
+        });
+    });
+
+    test("issueToken (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+        const rawRequestBody = { grant_type: "grant_type", publishable_key: "publishable_key" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/v1/management/auth/token")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.controllerApi.issueToken({
+                grant_type: "grant_type",
+                publishable_key: "publishable_key",
+            });
+        }).rejects.toThrow(Apollo.BadRequestError);
+    });
+
+    test("issueToken (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+        const rawRequestBody = { grant_type: "grant_type", publishable_key: "publishable_key" };
+        const rawResponseBody = {};
+        server
+            .mockEndpoint()
+            .post("/v1/management/auth/token")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.controllerApi.issueToken({
+                grant_type: "grant_type",
+                publishable_key: "publishable_key",
+            });
+        }).rejects.toThrow(Apollo.UnprocessableEntityError);
+    });
+
+    test("issueToken (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+        const rawRequestBody = { grant_type: "grant_type", publishable_key: "publishable_key" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/v1/management/auth/token")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(502)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.controllerApi.issueToken({
+                grant_type: "grant_type",
+                publishable_key: "publishable_key",
+            });
+        }).rejects.toThrow(Apollo.BadGatewayError);
+    });
+
+    test("listUserTasks (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {
-            tasks: [
-                {
-                    id: "id",
-                    user_id: "user_id",
-                    title: "title",
-                    welcome_message: "welcome_message",
-                    followup_suggestions: ["followup_suggestions"],
-                },
-            ],
+            items: [{ id: "id", title: "title", created_at: "created_at", created_by: "created_by" }],
             total: 1,
             page: 1,
             size: 1,
         };
         server
             .mockEndpoint()
-            .get("/api/v1/external/tasks")
+            .get("/v1/messaging/tasks")
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
         const response = await client.controllerApi.listUserTasks({
+            organization_id: "organization_id",
             user_id: "user_id",
+            account_id: "account_id",
+            network_id: "network_id",
             page: 1,
-            size: 1,
+            limit: 1,
         });
         expect(response).toEqual({
-            tasks: [
+            items: [
                 {
                     id: "id",
-                    user_id: "user_id",
                     title: "title",
-                    welcome_message: "welcome_message",
-                    followup_suggestions: ["followup_suggestions"],
+                    created_at: "created_at",
+                    created_by: "created_by",
                 },
             ],
             total: 1,
@@ -55,17 +169,18 @@ describe("ControllerApi", () => {
         });
     });
 
-    test("list_user_tasks (2)", async () => {
+    test("listUserTasks (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {};
         server
             .mockEndpoint()
-            .get("/api/v1/external/tasks")
+            .get("/v1/messaging/tasks")
             .respondWith()
             .statusCode(422)
             .jsonBody(rawResponseBody)
@@ -73,18 +188,19 @@ describe("ControllerApi", () => {
 
         await expect(async () => {
             return await client.controllerApi.listUserTasks({
-                user_id: "user_id",
+                organization_id: "organization_id",
             });
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
 
-    test("create_task (1)", async () => {
+    test("createTask (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { user_id: "user_id", task_origin_type: "stores" };
+        const rawRequestBody = { agent_id: "agent_id", user_id: "user_id", task_origin_type: "task_origin_type" };
         const rawResponseBody = {
             id: "id",
             user_id: "user_id",
@@ -94,7 +210,9 @@ describe("ControllerApi", () => {
         };
         server
             .mockEndpoint()
-            .post("/api/v1/external/tasks")
+            .post("/v1/messaging/tasks")
+            .header("x-aui-user-id", "x-aui-user-id")
+            .header("x-aui-source", "x-aui-source")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
@@ -102,8 +220,11 @@ describe("ControllerApi", () => {
             .build();
 
         const response = await client.controllerApi.createTask({
+            "x-aui-user-id": "x-aui-user-id",
+            "x-aui-source": "x-aui-source",
+            agent_id: "agent_id",
             user_id: "user_id",
-            task_origin_type: "stores",
+            task_origin_type: "task_origin_type",
         });
         expect(response).toEqual({
             id: "id",
@@ -114,17 +235,18 @@ describe("ControllerApi", () => {
         });
     });
 
-    test("create_task (2)", async () => {
+    test("createTask (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { user_id: "user_id", task_origin_type: "stores" };
+        const rawRequestBody = { agent_id: "agent_id", user_id: "user_id", task_origin_type: "task_origin_type" };
         const rawResponseBody = {};
         server
             .mockEndpoint()
-            .post("/api/v1/external/tasks")
+            .post("/v1/messaging/tasks")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(422)
@@ -133,16 +255,157 @@ describe("ControllerApi", () => {
 
         await expect(async () => {
             return await client.controllerApi.createTask({
+                agent_id: "agent_id",
                 user_id: "user_id",
-                task_origin_type: "stores",
+                task_origin_type: "task_origin_type",
             });
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
 
-    test("get_task (1)", async () => {
+    test("getTaskMessages (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+
+        const rawResponseBody = [{ key: "value" }];
+        server
+            .mockEndpoint()
+            .get("/v1/messaging/tasks/task_id/messages")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.controllerApi.getTaskMessages("task_id");
+        expect(response).toEqual([
+            {
+                key: "value",
+            },
+        ]);
+    });
+
+    test("getTaskMessages (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+
+        const rawResponseBody = {};
+        server
+            .mockEndpoint()
+            .get("/v1/messaging/tasks/task_id/messages")
+            .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.controllerApi.getTaskMessages("task_id");
+        }).rejects.toThrow(Apollo.UnprocessableEntityError);
+    });
+
+    test("getTraceInfo (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .get("/v1/messaging/tasks/task_id/interactions/interaction_id/trace-info")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.controllerApi.getTraceInfo("task_id", "interaction_id");
+        expect(response).toEqual({
+            key: "value",
+        });
+    });
+
+    test("getTraceInfo (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+
+        const rawResponseBody = {};
+        server
+            .mockEndpoint()
+            .get("/v1/messaging/tasks/task_id/interactions/interaction_id/trace-info")
+            .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.controllerApi.getTraceInfo("task_id", "interaction_id");
+        }).rejects.toThrow(Apollo.UnprocessableEntityError);
+    });
+
+    test("getTaskTraceInfo (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+
+        const rawResponseBody = [{ key: "value" }];
+        server
+            .mockEndpoint()
+            .get("/v1/messaging/tasks/task_id/trace-info")
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.controllerApi.getTaskTraceInfo("task_id");
+        expect(response).toEqual([
+            {
+                key: "value",
+            },
+        ]);
+    });
+
+    test("getTaskTraceInfo (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
+            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
+        });
+
+        const rawResponseBody = {};
+        server
+            .mockEndpoint()
+            .get("/v1/messaging/tasks/task_id/trace-info")
+            .respondWith()
+            .statusCode(422)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.controllerApi.getTaskTraceInfo("task_id");
+        }).rejects.toThrow(Apollo.UnprocessableEntityError);
+    });
+
+    test("getTask (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new ApolloClient({
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
@@ -155,7 +418,7 @@ describe("ControllerApi", () => {
         };
         server
             .mockEndpoint()
-            .get("/api/v1/external/tasks/task_id")
+            .get("/v1/messaging/tasks/task_id")
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
@@ -171,17 +434,18 @@ describe("ControllerApi", () => {
         });
     });
 
-    test("get_task (2)", async () => {
+    test("getTask (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
 
         const rawResponseBody = {};
         server
             .mockEndpoint()
-            .get("/api/v1/external/tasks/task_id")
+            .get("/v1/messaging/tasks/task_id")
             .respondWith()
             .statusCode(422)
             .jsonBody(rawResponseBody)
@@ -192,134 +456,11 @@ describe("ControllerApi", () => {
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
 
-    test("get_task_messages (1)", async () => {
+    test("sendMessage (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-
-        const rawResponseBody = [
-            {
-                id: "id",
-                created_at: "created_at",
-                text: "text",
-                sender: { id: "id", type: "user", email: "email" },
-                receiver: { id: "id", type: "user", email: "email" },
-                cards: [{ id: "id", name: "name", category: "category", parameters: [], is_recommended: true }],
-                welcome_message: "welcome_message",
-                followup_suggestions: ["followup_suggestions"],
-                executed_workflows: ["executed_workflows"],
-                url: "url",
-                trace_info: {
-                    input: { message: "message" },
-                    context: {},
-                    understanding: { guardrails: { passed: true } },
-                    decisions: [{ tool: "tool", trigger: { type: "structured" } }],
-                    response: { type: "answer", message: "message" },
-                    rules_evaluations: [{ code: "code", triggered: true }],
-                    latency: { elapsed: 1.1 },
-                },
-            },
-        ];
-        server
-            .mockEndpoint()
-            .get("/api/v1/external/tasks/task_id/messages")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.controllerApi.getTaskMessages("task_id");
-        expect(response).toEqual([
-            {
-                id: "id",
-                created_at: "created_at",
-                text: "text",
-                sender: {
-                    id: "id",
-                    type: "user",
-                    email: "email",
-                },
-                receiver: {
-                    id: "id",
-                    type: "user",
-                    email: "email",
-                },
-                cards: [
-                    {
-                        id: "id",
-                        name: "name",
-                        category: "category",
-                        parameters: [],
-                        is_recommended: true,
-                    },
-                ],
-                welcome_message: "welcome_message",
-                followup_suggestions: ["followup_suggestions"],
-                executed_workflows: ["executed_workflows"],
-                url: "url",
-                trace_info: {
-                    input: {
-                        message: "message",
-                    },
-                    context: {},
-                    understanding: {
-                        guardrails: {
-                            passed: true,
-                        },
-                    },
-                    decisions: [
-                        {
-                            tool: "tool",
-                            trigger: {
-                                type: "structured",
-                            },
-                        },
-                    ],
-                    response: {
-                        type: "answer",
-                        message: "message",
-                    },
-                    rules_evaluations: [
-                        {
-                            code: "code",
-                            triggered: true,
-                        },
-                    ],
-                    latency: {
-                        elapsed: 1.1,
-                    },
-                },
-            },
-        ]);
-    });
-
-    test("get_task_messages (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-
-        const rawResponseBody = {};
-        server
-            .mockEndpoint()
-            .get("/api/v1/external/tasks/task_id/messages")
-            .respondWith()
-            .statusCode(422)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.controllerApi.getTaskMessages("task_id");
-        }).rejects.toThrow(Apollo.UnprocessableEntityError);
-    });
-
-    test("send_message (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
         const rawRequestBody = { task_id: "task_id" };
@@ -327,57 +468,21 @@ describe("ControllerApi", () => {
             id: "id",
             created_at: "created_at",
             text: "text",
-            sender: { id: "id", type: "user", email: "email" },
-            receiver: { id: "id", type: "user", email: "email" },
-            cards: [
-                {
-                    id: "id",
-                    name: "name",
-                    category: "category",
-                    query: { key: "value" },
-                    parameters: [],
-                    sub_entities: [{ name: "name", items: [{ parameters: [{ param: "param", title: "title" }] }] }],
-                    self_review: { score: { label: "HIGH", method: "INVENTORY_CLASSIFICATION" }, type: "WORKFLOW" },
-                    is_recommended: true,
-                    rendered_jsx: "rendered_jsx",
-                },
-            ],
+            sender: { id: "id", type: "type", email: "email" },
+            receiver: { id: "id", type: "type", email: "email" },
+            cards: [{ index: 1, query: { key: "value" }, rendered_jsx: "rendered_jsx" }],
             welcome_message: "welcome_message",
             followup_suggestions: ["followup_suggestions"],
-            executed_workflows: ["executed_workflows"],
             url: "url",
-            trace_info: {
-                input: { message: "message" },
-                context: {
-                    active_tools: [{ tool: "tool", status: "awaiting_params" }],
-                    entities: [{ entity: "entity", source: "external_context" }],
-                    static_context: [{ key: "value" }],
-                    message_params: { key: "value" },
-                    response_params: { key: "value" },
-                },
-                understanding: {
-                    guardrails: { passed: true },
-                    intents: ["intents"],
-                    extracted_params: { key: "value" },
-                },
-                decisions: [{ tool: "tool", trigger: { type: "structured" } }],
-                response: {
-                    type: "answer",
-                    message: "message",
-                    suggestions: ["suggestions"],
-                    question_reason: "missing_params",
-                    asking_for: ["asking_for"],
-                    block_message: "block_message",
-                    error: "error",
-                    jsx_widgets: [{ name: "name", category: "category", rendered_jsx: "rendered_jsx" }],
-                },
-                rules_evaluations: [{ code: "code", triggered: true }],
-                latency: { elapsed: 1.1, unit: "microsecond", time_to_first_token: 1.1 },
-            },
+            input_tokens: 1,
+            output_tokens: 1,
+            trace_info: { key: "value" },
         };
         server
             .mockEndpoint()
-            .post("/api/v1/external/message")
+            .post("/v1/messaging/messages")
+            .header("x-aui-source", "x-aui-source")
+            .header("x-aui-client", "x-aui-client")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
@@ -385,9 +490,9 @@ describe("ControllerApi", () => {
             .build();
 
         const response = await client.controllerApi.sendMessage({
-            include_business_trace: true,
-            include_context_trace: true,
-            is_external_api: true,
+            "x-aui-source": "x-aui-source",
+            "x-aui-client": "x-aui-client",
+            include_trace: true,
             task_id: "task_id",
         });
         expect(response).toEqual({
@@ -396,141 +501,46 @@ describe("ControllerApi", () => {
             text: "text",
             sender: {
                 id: "id",
-                type: "user",
+                type: "type",
                 email: "email",
             },
             receiver: {
                 id: "id",
-                type: "user",
+                type: "type",
                 email: "email",
             },
             cards: [
                 {
-                    id: "id",
-                    name: "name",
-                    category: "category",
+                    index: 1,
                     query: {
                         key: "value",
                     },
-                    parameters: [],
-                    sub_entities: [
-                        {
-                            name: "name",
-                            items: [
-                                {
-                                    parameters: [
-                                        {
-                                            param: "param",
-                                            title: "title",
-                                        },
-                                    ],
-                                },
-                            ],
-                        },
-                    ],
-                    self_review: {
-                        score: {
-                            label: "HIGH",
-                            method: "INVENTORY_CLASSIFICATION",
-                        },
-                        type: "WORKFLOW",
-                    },
-                    is_recommended: true,
                     rendered_jsx: "rendered_jsx",
                 },
             ],
             welcome_message: "welcome_message",
             followup_suggestions: ["followup_suggestions"],
-            executed_workflows: ["executed_workflows"],
             url: "url",
+            input_tokens: 1,
+            output_tokens: 1,
             trace_info: {
-                input: {
-                    message: "message",
-                },
-                context: {
-                    active_tools: [
-                        {
-                            tool: "tool",
-                            status: "awaiting_params",
-                        },
-                    ],
-                    entities: [
-                        {
-                            entity: "entity",
-                            source: "external_context",
-                        },
-                    ],
-                    static_context: [
-                        {
-                            key: "value",
-                        },
-                    ],
-                    message_params: {
-                        key: "value",
-                    },
-                    response_params: {
-                        key: "value",
-                    },
-                },
-                understanding: {
-                    guardrails: {
-                        passed: true,
-                    },
-                    intents: ["intents"],
-                    extracted_params: {
-                        key: "value",
-                    },
-                },
-                decisions: [
-                    {
-                        tool: "tool",
-                        trigger: {
-                            type: "structured",
-                        },
-                    },
-                ],
-                response: {
-                    type: "answer",
-                    message: "message",
-                    suggestions: ["suggestions"],
-                    question_reason: "missing_params",
-                    asking_for: ["asking_for"],
-                    block_message: "block_message",
-                    error: "error",
-                    jsx_widgets: [
-                        {
-                            name: "name",
-                            category: "category",
-                            rendered_jsx: "rendered_jsx",
-                        },
-                    ],
-                },
-                rules_evaluations: [
-                    {
-                        code: "code",
-                        triggered: true,
-                    },
-                ],
-                latency: {
-                    elapsed: 1.1,
-                    unit: "microsecond",
-                    time_to_first_token: 1.1,
-                },
+                key: "value",
             },
         });
     });
 
-    test("send_message (2)", async () => {
+    test("sendMessage (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
         const rawRequestBody = { task_id: "task_id" };
         const rawResponseBody = {};
         server
             .mockEndpoint()
-            .post("/api/v1/external/message")
+            .post("/v1/messaging/messages")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(422)
@@ -544,113 +554,46 @@ describe("ControllerApi", () => {
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
 
-    test("get_agent_context (1)", async () => {
+    test("createPresignedUploadUrl (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { key: "value" };
-        const rawResponseBody = {
-            title: "title",
-            params: [
-                {
-                    param: "param",
-                    title: "title",
-                    type: "REGULAR",
-                    value: { source: "user_message", value: "value" },
-                    value_history: [],
-                    presence_level: "MANDATORY",
-                    facet_match_group: "HARD",
-                    is_anchor: true,
-                    is_value_filled: true,
-                    is_visible: true,
-                    is_exist_param: true,
-                    param_type: "boolean",
-                    code: "code",
-                },
-            ],
-            entities: [
-                {
-                    uuid: "uuid",
-                    created_at: "2024-01-15T09:30:00Z",
-                    name: "name",
-                    is_displayable: true,
-                    populate_to_user_profile: true,
-                    items: [{}],
-                    source: "direct_topic_creation",
-                    interaction_id: "interaction_id",
-                    type: "normal",
-                },
-            ],
-            static_context: [{ key: "value" }],
-        };
+        const rawRequestBody = { filename: "filename" };
+        const rawResponseBody = { image_url: "image_url", upload_url: "upload_url", content_type: "content_type" };
         server
             .mockEndpoint()
-            .post("/api/v1/external/agent-context")
+            .post("/v1/messaging/uploads/presign")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
             .jsonBody(rawResponseBody)
             .build();
 
-        const response = await client.controllerApi.getAgentContext({
-            key: "value",
+        const response = await client.controllerApi.createPresignedUploadUrl({
+            filename: "filename",
         });
         expect(response).toEqual({
-            title: "title",
-            params: [
-                {
-                    param: "param",
-                    title: "title",
-                    type: "REGULAR",
-                    value: {
-                        source: "user_message",
-                        value: "value",
-                    },
-                    value_history: [],
-                    presence_level: "MANDATORY",
-                    facet_match_group: "HARD",
-                    is_anchor: true,
-                    is_value_filled: true,
-                    is_visible: true,
-                    is_exist_param: true,
-                    param_type: "boolean",
-                    code: "code",
-                },
-            ],
-            entities: [
-                {
-                    uuid: "uuid",
-                    created_at: "2024-01-15T09:30:00Z",
-                    name: "name",
-                    is_displayable: true,
-                    populate_to_user_profile: true,
-                    items: [{}],
-                    source: "direct_topic_creation",
-                    interaction_id: "interaction_id",
-                    type: "normal",
-                },
-            ],
-            static_context: [
-                {
-                    key: "value",
-                },
-            ],
+            image_url: "image_url",
+            upload_url: "upload_url",
+            content_type: "content_type",
         });
     });
 
-    test("get_agent_context (2)", async () => {
+    test("createPresignedUploadUrl (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { string: { key: "value" } };
+        const rawRequestBody = { filename: "x" };
         const rawResponseBody = {};
         server
             .mockEndpoint()
-            .post("/api/v1/external/agent-context")
+            .post("/v1/messaging/uploads/presign")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(422)
@@ -658,117 +601,24 @@ describe("ControllerApi", () => {
             .build();
 
         await expect(async () => {
-            return await client.controllerApi.getAgentContext({
-                string: {
-                    key: "value",
-                },
+            return await client.controllerApi.createPresignedUploadUrl({
+                filename: "x",
             });
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });
 
-    test("get_direct_followup_suggestions (1)", async () => {
+    test("startTextConversation (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = {};
-        const rawResponseBody = { suggestions: ["suggestions"], metadata_id: "metadata_id" };
+        const rawRequestBody = { phoneNumber: "phoneNumber", agentId: "agentId" };
+        const rawResponseBody = { taskId: "taskId", messageSid: "messageSid" };
         server
             .mockEndpoint()
-            .post("/api/v1/external/direct-followup-suggestions")
-            .jsonBody(rawRequestBody)
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.controllerApi.getDirectFollowupSuggestions();
-        expect(response).toEqual({
-            suggestions: ["suggestions"],
-            metadata_id: "metadata_id",
-        });
-    });
-
-    test("get_direct_followup_suggestions (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-        const rawRequestBody = {};
-        const rawResponseBody = {};
-        server
-            .mockEndpoint()
-            .post("/api/v1/external/direct-followup-suggestions")
-            .jsonBody(rawRequestBody)
-            .respondWith()
-            .statusCode(422)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.controllerApi.getDirectFollowupSuggestions();
-        }).rejects.toThrow(Apollo.UnprocessableEntityError);
-    });
-
-    test("get_trace_info (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-
-        const rawResponseBody = { key: "value" };
-        server
-            .mockEndpoint()
-            .get("/api/v1/external/tasks/task_id/messages/message_id/trace-info")
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.controllerApi.getTraceInfo("task_id", "message_id", {
-            include_business_logic: true,
-            include_context_logic: true,
-        });
-        expect(response).toEqual({
-            key: "value",
-        });
-    });
-
-    test("get_trace_info (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-
-        const rawResponseBody = {};
-        server
-            .mockEndpoint()
-            .get("/api/v1/external/tasks/task_id/messages/message_id/trace-info")
-            .respondWith()
-            .statusCode(422)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.controllerApi.getTraceInfo("task_id", "message_id");
-        }).rejects.toThrow(Apollo.UnprocessableEntityError);
-    });
-
-    test("start_text_conversation (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-        const rawRequestBody = { phoneNumber: "phoneNumber", channel: "channel" };
-        const rawResponseBody = { status: true, data: { key: "value" }, message: "message", statusCode: 1 };
-        server
-            .mockEndpoint()
-            .post("/api/v1/external/text/conversation")
+            .post("/v1/channels/whatsapp/conversations")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(200)
@@ -777,29 +627,26 @@ describe("ControllerApi", () => {
 
         const response = await client.controllerApi.startTextConversation({
             phoneNumber: "phoneNumber",
-            channel: "channel",
+            agentId: "agentId",
         });
         expect(response).toEqual({
-            status: true,
-            data: {
-                key: "value",
-            },
-            message: "message",
-            statusCode: 1,
+            taskId: "taskId",
+            messageSid: "messageSid",
         });
     });
 
-    test("start_text_conversation (2)", async () => {
+    test("startTextConversation (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            networkApiKey: "test",
+            token: "test",
+            auiOrganizationId: "test",
             environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
         });
-        const rawRequestBody = { phoneNumber: "phoneNumber", channel: "channel" };
+        const rawRequestBody = { phoneNumber: "phoneNumber", agentId: "agentId" };
         const rawResponseBody = {};
         server
             .mockEndpoint()
-            .post("/api/v1/external/text/conversation")
+            .post("/v1/channels/whatsapp/conversations")
             .jsonBody(rawRequestBody)
             .respondWith()
             .statusCode(422)
@@ -809,78 +656,7 @@ describe("ControllerApi", () => {
         await expect(async () => {
             return await client.controllerApi.startTextConversation({
                 phoneNumber: "phoneNumber",
-                channel: "channel",
-            });
-        }).rejects.toThrow(Apollo.UnprocessableEntityError);
-    });
-
-    test("render_widget (1)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-        const rawRequestBody = {
-            task_id: "task_id",
-            integration_code: "integration_code",
-            card_template_code: "card_template_code",
-            variables: { key: "value" },
-        };
-        const rawResponseBody = { rendered_jsx: "rendered_jsx" };
-        server
-            .mockEndpoint()
-            .post("/api/v1/external/widgets")
-            .jsonBody(rawRequestBody)
-            .respondWith()
-            .statusCode(200)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        const response = await client.controllerApi.renderWidget({
-            task_id: "task_id",
-            integration_code: "integration_code",
-            card_template_code: "card_template_code",
-            variables: {
-                key: "value",
-            },
-        });
-        expect(response).toEqual({
-            rendered_jsx: "rendered_jsx",
-        });
-    });
-
-    test("render_widget (2)", async () => {
-        const server = mockServerPool.createServer();
-        const client = new ApolloClient({
-            networkApiKey: "test",
-            environment: { base: server.baseUrl, gcp: server.baseUrl, azure: server.baseUrl, aws: server.baseUrl },
-        });
-        const rawRequestBody = {
-            task_id: "task_id",
-            integration_code: "integration_code",
-            card_template_code: "card_template_code",
-            variables: { variables: { key: "value" } },
-        };
-        const rawResponseBody = {};
-        server
-            .mockEndpoint()
-            .post("/api/v1/external/widgets")
-            .jsonBody(rawRequestBody)
-            .respondWith()
-            .statusCode(422)
-            .jsonBody(rawResponseBody)
-            .build();
-
-        await expect(async () => {
-            return await client.controllerApi.renderWidget({
-                task_id: "task_id",
-                integration_code: "integration_code",
-                card_template_code: "card_template_code",
-                variables: {
-                    variables: {
-                        key: "value",
-                    },
-                },
+                agentId: "agentId",
             });
         }).rejects.toThrow(Apollo.UnprocessableEntityError);
     });

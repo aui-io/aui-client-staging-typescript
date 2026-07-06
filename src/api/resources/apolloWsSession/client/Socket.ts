@@ -9,7 +9,7 @@ export declare namespace ApolloWsSessionSocket {
         socket: core.ReconnectingWebSocket;
     }
 
-    export type Response = Apollo.StreamingUpdatePayload | Apollo.FinalMessagePayload | Apollo.ErrorMessagePayload;
+    export type Response = Apollo.StreamingUpdateEnvelope | Apollo.FinalMessageEnvelope | Apollo.ErrorEnvelope;
     type EventHandlers = {
         open?: () => void;
         message?: (message: Response) => void;

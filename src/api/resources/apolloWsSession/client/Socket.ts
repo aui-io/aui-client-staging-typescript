@@ -69,7 +69,10 @@ export class ApolloWsSessionSocket {
 
     public sendUserMessage(message: Apollo.UserMessagePayload): void {
         this.assertSocketIsOpen();
-        this.sendJson(message);
+        // apollo-api's WS validates inbound frames as a tagged union discriminated
+        // by `type`; "message" selects SubmitMessageRequest. Inject it so callers
+        // keep using the simple { task_id, text } payload (backward compatible).
+        this.sendJson({ type: "message", ...message } as Apollo.UserMessagePayload);
     }
 
     /** Connect to the websocket and register event handlers. */
@@ -126,7 +129,10 @@ export class ApolloWsSessionSocket {
 
     /** Send a binary payload to the websocket. */
     protected sendBinary(payload: ArrayBufferLike | Blob | ArrayBufferView): void {
-        this.socket.send(payload);
+        // `ArrayBufferLike` includes `SharedArrayBuffer`, which TS 5.7+ no longer
+        // treats as an `ArrayBuffer`, so `ws`'s send() type rejects it. Cast to
+        // whatever send() actually accepts so this stays green across TS versions.
+        this.socket.send(payload as Parameters<typeof this.socket.send>[0]);
     }
 
     /** Send a JSON payload to the websocket. */

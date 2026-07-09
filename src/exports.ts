@@ -1,10 +1,9 @@
 /**
- * Custom exports for the Apollo SDK (Staging)
- * 
+ * Custom exports for the Apollo SDK (Staging).
+ *
  * This file is in .fernignore and won't be overwritten by Fern generation.
- * Add any custom exports here that need to be available at the package root.
+ * Add any additional package-root exports here. Imported by index.ts via
+ * `export * from "./exports.js"`.
  */
 
-// Direct export of WebSocket Socket class for TypeScript users
-// This allows: import { ApolloWsSessionSocket } from '@aui.io/aui-client-staging'
-export { ApolloWsSessionSocket } from "./api/resources/apolloWsSession/client/Socket.js";
+export * from "./core/exports.js";

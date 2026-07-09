@@ -3,21 +3,20 @@
 import type * as Apollo from "../index.js";
 
 /**
- * Agent reply in external API shape (used by both WS and REST).
+ * One message in a thread transcript (the published, scrubbed shape).
  */
 export interface Message {
+    /** Interaction id (or message id for interaction-less messages). */
     id: string;
-    created_at: string;
-    text: string;
-    sender: Apollo.ContactParty;
-    receiver: Apollo.ContactParty;
-    cards?: Apollo.Card[];
+    /** ISO-8601. */
+    created_at?: string;
+    text?: string;
+    sender?: Apollo.MessageParty;
+    receiver?: Apollo.MessageParty;
+    cards?: Apollo.MessageCard[];
     welcome_message?: string;
     followup_suggestions?: string[];
     url?: string;
     input_tokens?: number;
     output_tokens?: number;
-    trace_info?: Record<string, unknown>;
-    /** Accepts any additional properties */
-    [key: string]: any;
 }

@@ -3,10 +3,12 @@
 /**
  * RFC 6749 §5.1 successful token response.
  *
- * Extended with the network's ``agent_id``. RFC 6749 §5.1 permits additional
- * response parameters, so it rides alongside the standard token fields.
- * ``agent_id`` is resolved from agent-settings by ``network_id`` and is
- * ``None`` when the network has no agent (or the PK is not network-scoped).
+ * Extended with the network's ``agent_id`` and ``organization_id``. RFC 6749
+ * §5.1 permits additional response parameters, so they ride alongside the
+ * standard token fields. ``organization_id`` is a passthrough from identity's
+ * PK-exchange result; ``agent_id`` is resolved from agent-settings by the PK's
+ * network scope and is ``None`` when the network has no agent (or the PK is not
+ * network-scoped).
  */
 export interface TokenResponse {
     access_token: string;

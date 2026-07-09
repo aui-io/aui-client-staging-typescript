@@ -2,6 +2,10 @@
 # Applies to the generated session / simulatorSession sockets.
 src/core/websocket/ws.ts
 
+# Publish workflow: uses `npm install -g npm@latest` instead of `npx npm@latest`
+# to avoid the broken bundle (missing sigstore). Protected so the fix survives Fern regen.
+.github/workflows/ci.yml
+
 # Custom comprehensive README
 README.md
 

@@ -1,6 +1,6 @@
 {
     "name": "@aui.io/aui-client-staging",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "private": false,
     "repository": "github:aui-io/aui-client-staging-typescript",
     "type": "commonjs",

@@ -32,7 +32,7 @@ export class SimulatorSession {
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     ((await core.Supplier.get(this._options.environment)) ?? environments.ApolloEnvironment.Gcp)
-                        .production,
+                        .staging,
                 "/messaging/v1/simulator-session",
             ),
             protocols: [],

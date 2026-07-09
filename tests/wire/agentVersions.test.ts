@@ -8,7 +8,12 @@ describe("AgentVersions", () => {
     test("list_versions (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = {
@@ -146,7 +151,12 @@ describe("AgentVersions", () => {
     test("list_versions (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -168,7 +178,12 @@ describe("AgentVersions", () => {
     test("list_versions (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -190,7 +205,12 @@ describe("AgentVersions", () => {
     test("list_versions (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -212,7 +232,12 @@ describe("AgentVersions", () => {
     test("list_versions (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -234,7 +259,12 @@ describe("AgentVersions", () => {
     test("list_versions (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -256,7 +286,12 @@ describe("AgentVersions", () => {
     test("list_versions (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -278,7 +313,12 @@ describe("AgentVersions", () => {
     test("list_versions (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -300,7 +340,12 @@ describe("AgentVersions", () => {
     test("create_version (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { source: "version" };
         const rawResponseBody = {
@@ -382,7 +427,12 @@ describe("AgentVersions", () => {
     test("create_version (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { source: "version" };
         const rawResponseBody = { key: "value" };
@@ -405,7 +455,12 @@ describe("AgentVersions", () => {
     test("create_version (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { source: "version" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -428,7 +483,12 @@ describe("AgentVersions", () => {
     test("create_version (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { source: "version" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -451,7 +511,12 @@ describe("AgentVersions", () => {
     test("create_version (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { source: "version" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -474,7 +539,12 @@ describe("AgentVersions", () => {
     test("create_version (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { source: "version" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -497,7 +567,12 @@ describe("AgentVersions", () => {
     test("create_version (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { source: "version" };
         const rawResponseBody = { key: "value" };
@@ -520,7 +595,12 @@ describe("AgentVersions", () => {
     test("create_version (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { source: "version" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -543,7 +623,12 @@ describe("AgentVersions", () => {
     test("update_version (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = {};
         const rawResponseBody = {
@@ -611,7 +696,12 @@ describe("AgentVersions", () => {
     test("update_version (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
@@ -632,7 +722,12 @@ describe("AgentVersions", () => {
     test("update_version (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = {};
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -653,7 +748,12 @@ describe("AgentVersions", () => {
     test("update_version (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = {};
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -674,7 +774,12 @@ describe("AgentVersions", () => {
     test("update_version (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = {};
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -695,7 +800,12 @@ describe("AgentVersions", () => {
     test("update_version (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = {};
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -716,7 +826,12 @@ describe("AgentVersions", () => {
     test("update_version (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = {};
         const rawResponseBody = { key: "value" };
@@ -737,7 +852,12 @@ describe("AgentVersions", () => {
     test("update_version (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = {};
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -758,7 +878,12 @@ describe("AgentVersions", () => {
     test("publish_version (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = {
@@ -838,7 +963,12 @@ describe("AgentVersions", () => {
     test("publish_version (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -858,7 +988,12 @@ describe("AgentVersions", () => {
     test("publish_version (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -878,7 +1013,12 @@ describe("AgentVersions", () => {
     test("publish_version (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -898,7 +1038,12 @@ describe("AgentVersions", () => {
     test("publish_version (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -918,7 +1063,12 @@ describe("AgentVersions", () => {
     test("publish_version (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -938,7 +1088,12 @@ describe("AgentVersions", () => {
     test("publish_version (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -958,7 +1113,12 @@ describe("AgentVersions", () => {
     test("publish_version (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -978,7 +1138,12 @@ describe("AgentVersions", () => {
     test("archive_version (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = {
@@ -1045,7 +1210,12 @@ describe("AgentVersions", () => {
     test("archive_version (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -1065,7 +1235,12 @@ describe("AgentVersions", () => {
     test("archive_version (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1085,7 +1260,12 @@ describe("AgentVersions", () => {
     test("archive_version (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1105,7 +1285,12 @@ describe("AgentVersions", () => {
     test("archive_version (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1125,7 +1310,12 @@ describe("AgentVersions", () => {
     test("archive_version (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1145,7 +1335,12 @@ describe("AgentVersions", () => {
     test("archive_version (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -1165,7 +1360,12 @@ describe("AgentVersions", () => {
     test("archive_version (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1185,7 +1385,12 @@ describe("AgentVersions", () => {
     test("push_version (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { caller: "agent_builder", bundle: { key: "value" } };
         const rawResponseBody = {
@@ -1242,7 +1447,12 @@ describe("AgentVersions", () => {
     test("push_version (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { caller: "agent_builder", bundle: { bundle: { key: "value" } } };
         const rawResponseBody = { key: "value" };
@@ -1270,7 +1480,12 @@ describe("AgentVersions", () => {
     test("push_version (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { caller: "agent_builder", bundle: { bundle: { key: "value" } } };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1298,7 +1513,12 @@ describe("AgentVersions", () => {
     test("push_version (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { caller: "agent_builder", bundle: { bundle: { key: "value" } } };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1326,7 +1546,12 @@ describe("AgentVersions", () => {
     test("push_version (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { caller: "agent_builder", bundle: { bundle: { key: "value" } } };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1354,7 +1579,12 @@ describe("AgentVersions", () => {
     test("push_version (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { caller: "agent_builder", bundle: { bundle: { key: "value" } } };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1382,7 +1612,12 @@ describe("AgentVersions", () => {
     test("push_version (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { caller: "agent_builder", bundle: { bundle: { key: "value" } } };
         const rawResponseBody = { key: "value" };
@@ -1410,7 +1645,12 @@ describe("AgentVersions", () => {
     test("push_version (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { caller: "agent_builder", bundle: { bundle: { key: "value" } } };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1438,7 +1678,12 @@ describe("AgentVersions", () => {
     test("pull_version (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = {
@@ -1475,7 +1720,12 @@ describe("AgentVersions", () => {
     test("pull_version (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -1495,7 +1745,12 @@ describe("AgentVersions", () => {
     test("pull_version (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1515,7 +1770,12 @@ describe("AgentVersions", () => {
     test("pull_version (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1535,7 +1795,12 @@ describe("AgentVersions", () => {
     test("pull_version (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1555,7 +1820,12 @@ describe("AgentVersions", () => {
     test("pull_version (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -1575,7 +1845,12 @@ describe("AgentVersions", () => {
     test("pull_version (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -1595,7 +1870,12 @@ describe("AgentVersions", () => {
     test("pull_version (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };

@@ -7,7 +7,12 @@ describe("ApolloClient", () => {
     test("Health", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };

@@ -8,7 +8,12 @@ describe("Projects", () => {
     test("list_projects (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = {
@@ -69,7 +74,12 @@ describe("Projects", () => {
     test("list_projects (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -89,7 +99,12 @@ describe("Projects", () => {
     test("list_projects (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -109,7 +124,12 @@ describe("Projects", () => {
     test("list_projects (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -129,7 +149,12 @@ describe("Projects", () => {
     test("list_projects (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -149,7 +174,12 @@ describe("Projects", () => {
     test("list_projects (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -169,7 +199,12 @@ describe("Projects", () => {
     test("list_projects (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -189,7 +224,12 @@ describe("Projects", () => {
     test("list_projects (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -209,7 +249,12 @@ describe("Projects", () => {
     test("create_project (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = {
@@ -253,7 +298,12 @@ describe("Projects", () => {
     test("create_project (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = { key: "value" };
@@ -276,7 +326,12 @@ describe("Projects", () => {
     test("create_project (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -299,7 +354,12 @@ describe("Projects", () => {
     test("create_project (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -322,7 +382,12 @@ describe("Projects", () => {
     test("create_project (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -345,7 +410,12 @@ describe("Projects", () => {
     test("create_project (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -368,7 +438,12 @@ describe("Projects", () => {
     test("create_project (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = { key: "value" };
@@ -391,7 +466,12 @@ describe("Projects", () => {
     test("create_project (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { name: "name" };
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -414,7 +494,12 @@ describe("Projects", () => {
     test("get_project (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = {
@@ -456,7 +541,12 @@ describe("Projects", () => {
     test("get_project (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -476,7 +566,12 @@ describe("Projects", () => {
     test("get_project (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -496,7 +591,12 @@ describe("Projects", () => {
     test("get_project (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -516,7 +616,12 @@ describe("Projects", () => {
     test("get_project (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -536,7 +641,12 @@ describe("Projects", () => {
     test("get_project (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -556,7 +666,12 @@ describe("Projects", () => {
     test("get_project (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -576,7 +691,12 @@ describe("Projects", () => {
     test("get_project (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -596,7 +716,12 @@ describe("Projects", () => {
     test("delete_project (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         server
@@ -626,7 +751,12 @@ describe("Projects", () => {
     test("delete_project (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -646,7 +776,12 @@ describe("Projects", () => {
     test("delete_project (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -666,7 +801,12 @@ describe("Projects", () => {
     test("delete_project (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -686,7 +826,12 @@ describe("Projects", () => {
     test("delete_project (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -706,7 +851,12 @@ describe("Projects", () => {
     test("delete_project (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -726,7 +876,12 @@ describe("Projects", () => {
     test("delete_project (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -746,7 +901,12 @@ describe("Projects", () => {
     test("delete_project (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -766,7 +926,12 @@ describe("Projects", () => {
     test("get_project_usage (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = {
@@ -802,7 +967,12 @@ describe("Projects", () => {
     test("get_project_usage (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -822,7 +992,12 @@ describe("Projects", () => {
     test("get_project_usage (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -842,7 +1017,12 @@ describe("Projects", () => {
     test("get_project_usage (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -862,7 +1042,12 @@ describe("Projects", () => {
     test("get_project_usage (5)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -882,7 +1067,12 @@ describe("Projects", () => {
     test("get_project_usage (6)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };
@@ -902,7 +1092,12 @@ describe("Projects", () => {
     test("get_project_usage (7)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { key: "value" };
@@ -922,7 +1117,12 @@ describe("Projects", () => {
     test("get_project_usage (8)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
 
         const rawResponseBody = { error: { code: "code", message: "message" } };

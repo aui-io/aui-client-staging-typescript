@@ -2,6 +2,7 @@
 
 export interface ApolloEnvironmentUrls {
     base: string;
+    staging: string;
     production: string;
     local: string;
 }
@@ -9,6 +10,7 @@ export interface ApolloEnvironmentUrls {
 export const ApolloEnvironment = {
     Gcp: {
         base: "https://api-staging-v3.internal-aui.io/apollo-api-v2",
+        staging: "wss://api-staging-v3.internal-aui.io/apollo-api-v2",
         production: "wss://api-v3.aui.io",
         local: "ws://localhost:8000",
     },

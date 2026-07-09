@@ -8,7 +8,12 @@ describe("Auth", () => {
     test("issue_token (1)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { grant_type: "publishable_key", publishable_key: "pk_network_..." };
         const rawResponseBody = {
@@ -49,7 +54,12 @@ describe("Auth", () => {
     test("issue_token (2)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { string: { key: "value" } };
         const rawResponseBody = { key: "value" };
@@ -76,7 +86,12 @@ describe("Auth", () => {
     test("issue_token (3)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { string: { key: "value" } };
         const rawResponseBody = { key: "value" };
@@ -103,7 +118,12 @@ describe("Auth", () => {
     test("issue_token (4)", async () => {
         const server = mockServerPool.createServer();
         const client = new ApolloClient({
-            environment: { base: server.baseUrl, production: server.baseUrl, local: server.baseUrl },
+            environment: {
+                base: server.baseUrl,
+                staging: server.baseUrl,
+                production: server.baseUrl,
+                local: server.baseUrl,
+            },
         });
         const rawRequestBody = { string: { key: "value" } };
         const rawResponseBody = { key: "value" };
